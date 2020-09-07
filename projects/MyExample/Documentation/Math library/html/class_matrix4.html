@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.20"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Math library: Matrix4 Class Reference</title>
+<title>Math Library: Matrix4 Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Math library
+   <div id="projectname">Math Library
    </div>
    <div id="projectbrief">by Emma Eliasson</div>
   </td>
@@ -64,6 +64,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="class_matrix4-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -78,45 +79,48 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ab81ba14245ace93e2b6baf25391d572e"><td class="memItemLeft" align="right" valign="top"><a id="ab81ba14245ace93e2b6baf25391d572e"></a>
-<a class="el" href="class_matrix4.html">Matrix4</a>&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="class_matrix4.html">Matrix4</a> &amp;matrix4)</td></tr>
-<tr class="separator:ab81ba14245ace93e2b6baf25391d572e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5373753f08c03175435861d282945d32"><td class="memItemLeft" align="right" valign="top"><a id="a5373753f08c03175435861d282945d32"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="class_matrix4.html">Matrix4</a> matrix4)</td></tr>
+<tr class="separator:a5373753f08c03175435861d282945d32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31f3fe43048121f4ab3395e9b8f2f3ce"><td class="memItemLeft" align="right" valign="top"><a id="a31f3fe43048121f4ab3395e9b8f2f3ce"></a>
 float &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a31f3fe43048121f4ab3395e9b8f2f3ce">operator[]</a> (int num)</td></tr>
 <tr class="memdesc:a31f3fe43048121f4ab3395e9b8f2f3ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Let's us use [] instead of member m to get an element. Out of range returns element of index 0. <br /></td></tr>
 <tr class="separator:a31f3fe43048121f4ab3395e9b8f2f3ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a79e267a87ea26a4e5414ac59527a71"><td class="memItemLeft" align="right" valign="top"><a id="a1a79e267a87ea26a4e5414ac59527a71"></a>
-<a class="el" href="class_matrix4.html">Matrix4</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a1a79e267a87ea26a4e5414ac59527a71">operator*</a> (<a class="el" href="class_matrix4.html">Matrix4</a> &amp;matrix4)</td></tr>
-<tr class="memdesc:a1a79e267a87ea26a4e5414ac59527a71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix multiplication returns a new matrix. <br /></td></tr>
-<tr class="separator:a1a79e267a87ea26a4e5414ac59527a71"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a10b86fe5203d36e731b4b6c488aab134"><td class="memItemLeft" align="right" valign="top"><a id="a10b86fe5203d36e731b4b6c488aab134"></a>
-<a class="el" href="class_vec4.html">Vec4</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a10b86fe5203d36e731b4b6c488aab134">operator*</a> (<a class="el" href="class_vec4.html">Vec4</a> &amp;vec4)</td></tr>
-<tr class="memdesc:a10b86fe5203d36e731b4b6c488aab134"><td class="mdescLeft">&#160;</td><td class="mdescRight">Multiplying matrix with vector returns result as a new vector. <br /></td></tr>
-<tr class="separator:a10b86fe5203d36e731b4b6c488aab134"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a25cfa2d80102fede5d8bf934ab06d090"><td class="memItemLeft" align="right" valign="top"><a id="a25cfa2d80102fede5d8bf934ab06d090"></a>
-<a class="el" href="class_matrix4.html">Matrix4</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a25cfa2d80102fede5d8bf934ab06d090">rotationX</a> (float rad)</td></tr>
-<tr class="memdesc:a25cfa2d80102fede5d8bf934ab06d090"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rotation matrix around X-axis. Counter-clokcwise. <br /></td></tr>
-<tr class="separator:a25cfa2d80102fede5d8bf934ab06d090"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a584cc5fc36bdc19b44ceb36892c11ac8"><td class="memItemLeft" align="right" valign="top"><a id="a584cc5fc36bdc19b44ceb36892c11ac8"></a>
-<a class="el" href="class_matrix4.html">Matrix4</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a584cc5fc36bdc19b44ceb36892c11ac8">rotationY</a> (float rad)</td></tr>
-<tr class="memdesc:a584cc5fc36bdc19b44ceb36892c11ac8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rotation matrix around Y-axis. Counter-clockwise. <br /></td></tr>
-<tr class="separator:a584cc5fc36bdc19b44ceb36892c11ac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7cb09cb418b7bcb0af9cfaaf7d76550b"><td class="memItemLeft" align="right" valign="top"><a id="a7cb09cb418b7bcb0af9cfaaf7d76550b"></a>
-<a class="el" href="class_matrix4.html">Matrix4</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a7cb09cb418b7bcb0af9cfaaf7d76550b">rotationZ</a> (float rad)</td></tr>
-<tr class="memdesc:a7cb09cb418b7bcb0af9cfaaf7d76550b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rotation matrix around Z-axis. Counter-clockwise. <br /></td></tr>
-<tr class="separator:a7cb09cb418b7bcb0af9cfaaf7d76550b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a381b2c3be28ed3befc95cc04fa9d9ee9"><td class="memItemLeft" align="right" valign="top"><a id="a381b2c3be28ed3befc95cc04fa9d9ee9"></a>
-<a class="el" href="class_matrix4.html">Matrix4</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a381b2c3be28ed3befc95cc04fa9d9ee9">rotationVector</a> (<a class="el" href="class_vec4.html">Vec4</a> vec4, float rad)</td></tr>
-<tr class="memdesc:a381b2c3be28ed3befc95cc04fa9d9ee9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rotation matrix around arbitrary vector vec4. Counter-clockwise. <br /></td></tr>
-<tr class="separator:a381b2c3be28ed3befc95cc04fa9d9ee9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a71e0b29252a6e3c78e396342ac459e40"><td class="memItemLeft" align="right" valign="top"><a id="a71e0b29252a6e3c78e396342ac459e40"></a>
-<a class="el" href="class_matrix4.html">Matrix4</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a71e0b29252a6e3c78e396342ac459e40">transpose</a> ()</td></tr>
-<tr class="memdesc:a71e0b29252a6e3c78e396342ac459e40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns transposed matrix, where rows and columns have switched places. <br /></td></tr>
-<tr class="separator:a71e0b29252a6e3c78e396342ac459e40"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2aeafe0301ebaa1206e9ecbcf11cd33c"><td class="memItemLeft" align="right" valign="top"><a id="a2aeafe0301ebaa1206e9ecbcf11cd33c"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a2aeafe0301ebaa1206e9ecbcf11cd33c">inverse</a> (<a class="el" href="class_matrix4.html">Matrix4</a> &amp;newInversedMatrix4)</td></tr>
-<tr class="memdesc:a2aeafe0301ebaa1206e9ecbcf11cd33c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Changes newInversedMatrix4 to its inverse if determinator != 0. Else newInversedMatrix4 remains unchanged. <br /></td></tr>
-<tr class="separator:a2aeafe0301ebaa1206e9ecbcf11cd33c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a152a71d4a121fdcc5a961bf9e0e62b2d"><td class="memItemLeft" align="right" valign="top"><a id="a152a71d4a121fdcc5a961bf9e0e62b2d"></a>
+<a class="el" href="class_matrix4.html">Matrix4</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a152a71d4a121fdcc5a961bf9e0e62b2d">operator*</a> (<a class="el" href="class_matrix4.html">Matrix4</a> &amp;matrix4) const</td></tr>
+<tr class="memdesc:a152a71d4a121fdcc5a961bf9e0e62b2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix multiplication returns a new matrix. <br /></td></tr>
+<tr class="separator:a152a71d4a121fdcc5a961bf9e0e62b2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed36d323ed3cdad7ec3df617b0d83e89"><td class="memItemLeft" align="right" valign="top"><a id="aed36d323ed3cdad7ec3df617b0d83e89"></a>
+<a class="el" href="class_vec4.html">Vec4</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#aed36d323ed3cdad7ec3df617b0d83e89">operator*</a> (const <a class="el" href="class_vec4.html">Vec4</a> &amp;vec4) const</td></tr>
+<tr class="memdesc:aed36d323ed3cdad7ec3df617b0d83e89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Multiplying matrix with vector returns result as a new vector. <br /></td></tr>
+<tr class="separator:aed36d323ed3cdad7ec3df617b0d83e89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1504594417a336e2341f6813fff2db73"><td class="memItemLeft" align="right" valign="top"><a id="a1504594417a336e2341f6813fff2db73"></a>
+<a class="el" href="class_matrix4.html">Matrix4</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a1504594417a336e2341f6813fff2db73">rotationX</a> (const float rad) const</td></tr>
+<tr class="memdesc:a1504594417a336e2341f6813fff2db73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rotation matrix around X-axis. Counter-clockwise. <br /></td></tr>
+<tr class="separator:a1504594417a336e2341f6813fff2db73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac68b8ea4750c5cad842087a1d14a5861"><td class="memItemLeft" align="right" valign="top"><a id="ac68b8ea4750c5cad842087a1d14a5861"></a>
+<a class="el" href="class_matrix4.html">Matrix4</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#ac68b8ea4750c5cad842087a1d14a5861">rotationY</a> (const float rad) const</td></tr>
+<tr class="memdesc:ac68b8ea4750c5cad842087a1d14a5861"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rotation matrix around Y-axis. Counter-clockwise. <br /></td></tr>
+<tr class="separator:ac68b8ea4750c5cad842087a1d14a5861"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1dd7ad0a3ce6ff5da4dc59d56a770b9"><td class="memItemLeft" align="right" valign="top"><a id="ad1dd7ad0a3ce6ff5da4dc59d56a770b9"></a>
+<a class="el" href="class_matrix4.html">Matrix4</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#ad1dd7ad0a3ce6ff5da4dc59d56a770b9">rotationZ</a> (const float rad) const</td></tr>
+<tr class="memdesc:ad1dd7ad0a3ce6ff5da4dc59d56a770b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rotation matrix around Z-axis. Counter-clockwise. <br /></td></tr>
+<tr class="separator:ad1dd7ad0a3ce6ff5da4dc59d56a770b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a56ce41e19004ab68488d1256b1993e"><td class="memItemLeft" align="right" valign="top"><a id="a1a56ce41e19004ab68488d1256b1993e"></a>
+<a class="el" href="class_matrix4.html">Matrix4</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a1a56ce41e19004ab68488d1256b1993e">rotationVector</a> (const <a class="el" href="class_vec4.html">Vec4</a> &amp;vec, const float rad) const</td></tr>
+<tr class="memdesc:a1a56ce41e19004ab68488d1256b1993e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rotation matrix around arbitrary vector vec4. Counter-clockwise. <br /></td></tr>
+<tr class="separator:a1a56ce41e19004ab68488d1256b1993e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e4df6ef66513c433eb84588cdbf2d4c"><td class="memItemLeft" align="right" valign="top"><a id="a9e4df6ef66513c433eb84588cdbf2d4c"></a>
+<a class="el" href="class_matrix4.html">Matrix4</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a9e4df6ef66513c433eb84588cdbf2d4c">transpose</a> () const</td></tr>
+<tr class="memdesc:a9e4df6ef66513c433eb84588cdbf2d4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns transposed matrix, where rows and columns have switched places. <br /></td></tr>
+<tr class="separator:a9e4df6ef66513c433eb84588cdbf2d4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a20f1fca525ff6ace546c50fec03e8ab0"><td class="memItemLeft" align="right" valign="top"><a id="a20f1fca525ff6ace546c50fec03e8ab0"></a>
+static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_matrix4.html#a20f1fca525ff6ace546c50fec03e8ab0">inverse</a> (<a class="el" href="class_matrix4.html">Matrix4</a> &amp;originMatrix, <a class="el" href="class_matrix4.html">Matrix4</a> &amp;resultMatrix)</td></tr>
+<tr class="memdesc:a20f1fca525ff6ace546c50fec03e8ab0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Changes resultMatrix to inverse of originMatrix if determinator != 0. Else resultMatrix remains unchanged. <br /></td></tr>
+<tr class="separator:a20f1fca525ff6ace546c50fec03e8ab0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>

@@ -8,7 +8,6 @@
 //------------------------------------------------------------------------------
 #include "core/app.h"
 #include "render/window.h"
-#include "core/Math_Library.h"
 #include "render/MeshResource.h"
 
 namespace Example

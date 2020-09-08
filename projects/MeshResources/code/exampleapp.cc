@@ -122,10 +122,13 @@ ExampleApp::Open()
 			delete[] buf;
 		}
 
+		//TODO: använd MeshResource här
 		// setup vbo
+		MeshResource mr;
 		glGenBuffers(1, &this->triangle);
 		glBindBuffer(GL_ARRAY_BUFFER, this->triangle);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(buf), buf, GL_STATIC_DRAW);
+		//mr.vertexBuffer.Unbind();
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		return true;
 	}
@@ -144,8 +147,9 @@ ExampleApp::Run()
 		this->window->Update();
 
 		// do stuff
+		
 		glBindBuffer(GL_ARRAY_BUFFER, this->triangle);
-		glUseProgram(this->program);
+		glUseProgram(this->program); 
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float32) * 7, NULL);

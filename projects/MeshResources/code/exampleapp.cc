@@ -6,6 +6,8 @@
 #include "exampleapp.h"
 #include <cstring>
 
+#include "render/MeshResource.h"
+
 const GLchar* vs =
 "#version 430\n"
 "layout(location=0) in vec3 pos;\n"
@@ -25,6 +27,8 @@ const GLchar* ps =
 "{\n"
 "	Color = color;\n"
 "}\n";
+
+MeshResource mr; // example mesh
 
 using namespace Display;
 namespace Example
@@ -62,11 +66,20 @@ ExampleApp::Open()
 	GLfloat buf[] =
 	{
 		-0.5f,	-0.5f,	-1,			// pos 0
-		1,		0,		0,		1,	// color 0
-		0,		0.5f,	-1,			// pos 1
-		0,		1,		0,		1,	// color 0
-		0.5f,	-0.5f,	-1,			// pos 2
-		0,		0,		1,		1	// color 0
+		1,		0.2f,		0.2f,		1,	// color 0
+		-0.5f,	0.5f,	-1,			// pos 1
+		1,		1,		1,		1,	// color 0
+		0.5f,	0.5f,	-1,			// pos 2
+		1,		1,		1,		1,   // color 0
+
+		0.5f,	-0.5f,	1,
+		1,	0.6f,	0.6f,	1
+	};
+
+	GLuint ibuf[] =
+	{
+		0, 1, 2,
+		2, 3, 0
 	};
 
 	if (this->window->Open())
@@ -124,12 +137,19 @@ ExampleApp::Open()
 
 		//TODO: använd MeshResource här
 		// setup vbo
-		MeshResource mr;
-		glGenBuffers(1, &this->triangle);
-		glBindBuffer(GL_ARRAY_BUFFER, this->triangle);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(buf), buf, GL_STATIC_DRAW);
-		//mr.vertexBuffer.Unbind();
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		mr.genVertexArray();
+		mr.genVertexBuffer(buf, sizeof(buf));
+		glEnableVertexAttribArray(0); //TODO: nästa del att fixa i MeshResource
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float32) * 7, NULL);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float32) * 7, (GLvoid*)(sizeof(float32) * 3));
+		mr.genIndexBuffer(ibuf, 6);
+
+		mr.vertexArrayUnbind();
+		mr.vertexUnbind();
+		mr.indexUnbind();
+		glUseProgram(0);
+
 		return true;
 	}
 	return false;
@@ -147,18 +167,17 @@ ExampleApp::Run()
 		this->window->Update();
 
 		// do stuff
+		mr.vertexArrayBind();
+		glUseProgram(this->program);
 		
-		glBindBuffer(GL_ARRAY_BUFFER, this->triangle);
-		glUseProgram(this->program); 
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float32) * 7, NULL);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float32) * 7, (GLvoid*)(sizeof(float32) * 3));
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+		
 
 		this->window->SwapBuffers();
 	}
+	mr.vertexArrayUnbind();
 }
 
 } // namespace Example

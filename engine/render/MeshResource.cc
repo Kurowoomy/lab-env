@@ -4,7 +4,11 @@
 MeshResource::MeshResource() {
 	vertexID = 0;
 	indexID = 0;
+	vertexArrayID = 0;
 	count = 0;
+	layouts = 0;
+	stride = 0;
+	offset = 0;
 }
 
 void MeshResource::vertexBind() {
@@ -26,7 +30,8 @@ void MeshResource::vertexArrayUnbind() {
 	glBindVertexArray(0);
 }
 
-void MeshResource::genVertexBuffer(const GLfloat* buf, GLuint size) {
+void MeshResource::genVertexBuffer(const GLfloat* buf, GLuint size, const GLuint stride) {
+	this->stride = stride;
 	glGenBuffers(1, &vertexID);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexID);
 	glBufferData(GL_ARRAY_BUFFER, size, buf, GL_STATIC_DRAW);
@@ -42,11 +47,14 @@ void MeshResource::genVertexArray() {
 	glBindVertexArray(vertexArrayID);
 }
 
-//void MeshResource::setVertexAttributes(GLuint layout, )
+void MeshResource::addArrayAttribute(GLuint elementsPerVertex) {
+	glEnableVertexAttribArray(layouts);
+	glVertexAttribPointer(layouts, elementsPerVertex, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * stride, (const void*)offset);
+	offset += elementsPerVertex * sizeof(GLfloat);
+	layouts++;
+}
 
 MeshResource::~MeshResource(){
-	glDeleteBuffers(1, &vertexID);
-	glDeleteBuffers(1, &indexID);
 	glDeleteVertexArrays(1, &vertexArrayID);
 }
 

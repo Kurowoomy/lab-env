@@ -86,6 +86,7 @@ ExampleApp::Open()
 	{
 		// set clear color to gray
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		
 
 		// setup vertex shader
 		this->vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -135,19 +136,18 @@ ExampleApp::Open()
 			delete[] buf;
 		}
 
-		//TODO: använd MeshResource här
-		// setup vbo
+		// setup vba
 		mr.genVertexArray();
-		mr.genVertexBuffer(buf, sizeof(buf));
-		glEnableVertexAttribArray(0); //TODO: nästa del att fixa i MeshResource
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float32) * 7, NULL);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float32) * 7, (GLvoid*)(sizeof(float32) * 3));
+		mr.genVertexBuffer(buf, sizeof(buf), 7);
 		mr.genIndexBuffer(ibuf, 6);
+
+		mr.addArrayAttribute(3);
+		mr.addArrayAttribute(4);
 
 		mr.vertexArrayUnbind();
 		mr.vertexUnbind();
 		mr.indexUnbind();
+
 		glUseProgram(0);
 
 		return true;
@@ -161,19 +161,15 @@ ExampleApp::Open()
 void
 ExampleApp::Run()
 {
+	mr.vertexArrayBind();
+	glUseProgram(this->program);
 	while (this->window->IsOpen())
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 		this->window->Update();
 
 		// do stuff
-		mr.vertexArrayBind();
-		glUseProgram(this->program);
-		
-		
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-		
 
 		this->window->SwapBuffers();
 	}

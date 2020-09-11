@@ -2,38 +2,19 @@
 
 #include "core/Math_Library.h"
 #include "GL/glew.h"
+#include <vector>
 
-//class VertexBuffer {
-//public:
-//	GLuint rendererID;
-//	VertexBuffer();
-//
-//	void genVertexBuffer(const GLfloat* buf, GLuint size);
-//	void Bind() const;
-//	void Unbind() const;
-//	
-//	~VertexBuffer();
-//};
-//
-//class IndexBuffer {
-//public:
-//	GLuint rendererID;
-//	GLuint count;
-//	IndexBuffer();
-//
-//	void genIndexBuffer(const GLuint* data, GLuint size);
-//	void Bind() const;
-//	void Unbind() const;
-//
-//	~IndexBuffer();
-//};
 
+/// Contains 1 vertexBuffer, 1 indexBuffer, 1 vertexArray
 class MeshResource {
 public:
 	GLuint vertexID;
 	GLuint indexID;
 	GLuint vertexArrayID;
 	GLuint count;
+	GLuint stride;
+	GLuint layouts;
+	GLuint offset;
 
 	void vertexBind();
 	void indexBind();
@@ -41,12 +22,14 @@ public:
 	void vertexUnbind();
 	void indexUnbind();
 	void vertexArrayUnbind();
-	void genVertexBuffer(const GLfloat* buf, GLuint size);
+
+	void genVertexBuffer(const GLfloat* buf, GLuint size, const GLuint stride);
 	void genIndexBuffer(const GLuint* ibuf, GLuint count);
 	void genVertexArray();
 
+	void addArrayAttribute(GLuint elementsPerVertex);
+
 	MeshResource();
 	~MeshResource();
-	// vertex layout attributes here
 	
 };

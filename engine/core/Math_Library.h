@@ -105,28 +105,28 @@ public:
 
     //functions
     ///Rotation matrix around X-axis. Counter-clockwise.
-    Matrix4 rotationX(const float rad) const { //returns a new rotation matrix for X-axis, counter-clockwise
+    static Matrix4 rotationX(const float rad) {
         Matrix4 xMatrix;
         xMatrix[5] = cosf(rad); xMatrix[6] = -sinf(rad);
         xMatrix[9] = sinf(rad); xMatrix[10] = cosf(rad);
         return xMatrix;
     }
     ///Rotation matrix around Y-axis. Counter-clockwise.
-    Matrix4 rotationY(const float rad) const { //returns a new rotation matrix for Y-axis
+    static Matrix4 rotationY(const float rad) {
         Matrix4 yMatrix;
         yMatrix[0] = cosf(rad); yMatrix[2] = sinf(rad);
         yMatrix[8] = -sinf(rad); yMatrix[10] = cosf(rad);
         return yMatrix;
     }
     ///Rotation matrix around Z-axis. Counter-clockwise.
-    Matrix4 rotationZ(const float rad) const { //returns a new rotation matrix for Z-axis
+    static Matrix4 rotationZ(const float rad) {
         Matrix4 zMatrix;
         zMatrix[0] = cosf(rad); zMatrix[1] = -sinf(rad);
         zMatrix[4] = sinf(rad); zMatrix[5] = cosf(rad);
         return zMatrix;
     }
     ///Rotation matrix around arbitrary vector vec4. Counter-clockwise.
-    Matrix4 rotationVector(const Vec4& vec, const float rad) const { //returns a new rotation matrix for vec4
+    static Matrix4 rotationVector(const Vec4& vec, const float rad) {
         Matrix4 vectorMatrix;
         Vec4 vec4 = vec.normalize();
         vectorMatrix[0] = cosf(rad) + vec4.x * vec4.x * (1 - cosf(rad));
@@ -139,6 +139,22 @@ public:
         vectorMatrix[9] = vec4.z * vec4.y * (1 - cosf(rad)) + vec4.x * sinf(rad);
         vectorMatrix[10] = cosf(rad) + vec4.z * vec4.z * (1 - cosf(rad));
         return vectorMatrix;
+    }
+    /// Set scalar = 1 for original size.
+    static Matrix4 scaleMatrix(float scalar) {
+        Matrix4 scaledMatrix;
+        scaledMatrix[0] = scalar;
+        scaledMatrix[5] = scalar;
+        scaledMatrix[10] = scalar;
+        return scaledMatrix;
+    }
+    /// Set float parameters = 0 for no translation.
+    static Matrix4 translationMatrix(float x, float y, float z) {
+        Matrix4 translationMatrix;
+        translationMatrix[3] = x;
+        translationMatrix[7] = y;
+        translationMatrix[11] = z;
+        return translationMatrix;
     }
     ///Returns transposed matrix, where rows and columns have switched places.
     Matrix4 transpose() const { //switch places between rows and columns

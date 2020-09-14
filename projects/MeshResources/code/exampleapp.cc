@@ -6,7 +6,9 @@
 #include "exampleapp.h"
 #include <cstring>
 
+// mina inkluderingar
 #include "render/MeshResource.h"
+#include "core/Math_Library.h"
 
 // Läser av vertex buffern! O:
 const GLchar* vs =
@@ -14,15 +16,11 @@ const GLchar* vs =
 "layout(location=0) in vec3 pos;\n"
 "layout(location=0) out vec4 Color;\n"
 ""
-"uniform mat4 rotationMatrix;\n"
-"uniform vec4 translationVector;\n"
-"uniform float scalar;\n"
+"uniform mat4 transformationMatrix;\n"
 ""
 "void main()\n"
 "{\n"
-"	gl_Position = rotationMatrix * vec4(pos, 1);\n"
-"   gl_Position += translationVector;\n"
-"   gl_Position = gl_Position * scalar;\n"
+"   gl_Position = transformationMatrix * vec4(pos, 1);\n"
 "	Color = vec4(abs(pos.x+0.5), abs(pos.y+0.5), abs(pos.z), 1);\n"
 "}\n";
 
@@ -36,7 +34,7 @@ const GLchar* ps =
 "	Color = color;\n"
 "}\n";
 
-MeshResource mr; // example mesh
+MeshResource mr; // example mesh here for easy access in both run and open functions
 
 using namespace Display;
 namespace Example
@@ -78,7 +76,6 @@ ExampleApp::Open()
 		0.5f,	0.5f,	-1,			// pos 2
 		0.5f,	-0.5f,	-1,
 	};
-
 	GLuint ibuf[] =
 	{
 		0, 1, 2,
@@ -141,10 +138,10 @@ ExampleApp::Open()
 
 		// setup vba
 		mr.genVertexArray();
-		mr.genVertexBuffer(buf, sizeof(buf), 3);
-		mr.genIndexBuffer(ibuf, 6);
+		mr.genVertexBuffer(buf, sizeof(buf), 3); // total of 3 floats per stride
+		mr.genIndexBuffer(ibuf, sizeof(ibuf)/sizeof(GLuint));
 
-		mr.addArrayAttribute(3);
+		mr.addArrayAttribute(3); // x, y, z for each vertex
 
 		mr.vertexArrayUnbind();
 		mr.vertexUnbind();
@@ -161,37 +158,32 @@ ExampleApp::Open()
 void
 ExampleApp::Run()
 {
-	mr.vertexArrayBind();
-	glUseProgram(this->program);
-
-	Matrix4 rotMat;
+	// animation setup
+	Matrix4 transformationMatrix;
 	Vec4 transVec;
-	transVec.w = 0;
-	float radians = 0, dx = 0.005, scalar = 0.5;
-	int location = glGetUniformLocation(program, "rotationMatrix");
-	int vecLocation = glGetUniformLocation(program, "translationVector");
-	int scalarLocation = glGetUniformLocation(program, "scalar");
+	float radians = 0, dx = 0.006, scalar = 0.5, maxDistance = 0.75;
+	int transformationLocation = glGetUniformLocation(program, "transformationMatrix");
 	
+	glUseProgram(this->program);
+	mr.vertexArrayBind();
 	while (this->window->IsOpen())
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 		this->window->Update();
 
 		// do stuff
-		// rotera fyrkanten 
-		// TODO: få in allt i en enda transformMatrix så jag slipper tre olika uniforms.
-		radians += 0.01;
-		if (transVec.x <= -0.5) {
-			dx = 0.006;
-		}
-		else if (transVec.x >= 0.5) {
-			dx = -0.006;
+		// rotate 0.02 radians per frame
+		radians += 0.02;
+		// translation animation left to right. Change direction if maxDistance reached.
+		if (transVec.x <= -maxDistance || transVec.x >= maxDistance) {
+			dx = -dx;
 		}
 		transVec.x += dx;
-
-		glUniformMatrix4fv(location, 1, GL_FALSE, &rotMat.rotationZ(radians)[0]);
-		glUniform4fv(vecLocation, 1, &transVec.x);
-		glUniform1f(scalarLocation, scalar);
+		
+		// send updated data to shader
+		transformationMatrix = Matrix4::translationMatrix(transVec.x, transVec.y, transVec.z)
+			* Matrix4::rotationZ(radians) * Matrix4::scaleMatrix(scalar);
+		glUniformMatrix4fv(transformationLocation, 1, GL_TRUE, &transformationMatrix[0]);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 

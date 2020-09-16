@@ -5,7 +5,6 @@ MeshResource::MeshResource() {
 	vertexID = 0;
 	indexID = 0;
 	vertexArrayID = 0;
-	count = 0;
 	layouts = 0;
 	stride = 0;
 	offset = 0;
@@ -41,7 +40,6 @@ void MeshResource::genVertexBuffer(const GLfloat* buf, GLuint size, const GLuint
 	glBufferData(GL_ARRAY_BUFFER, size, buf, GL_STATIC_DRAW);
 }
 void MeshResource::genIndexBuffer(const GLuint* ibuf, GLuint count) {
-	this->count = count;
 	glGenBuffers(1, &indexID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexID);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint), ibuf, GL_STATIC_DRAW);

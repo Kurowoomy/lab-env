@@ -8,10 +8,7 @@ public:
 	GLuint vertexID;
 	GLuint indexID;
 	GLuint vertexArrayID;
-	GLuint count;
-	GLuint stride;
-	GLuint layouts;
-	GLuint offset;
+	GLuint stride, layouts, offset; // used in addArrayAttribute
 
 	MeshResource();
 

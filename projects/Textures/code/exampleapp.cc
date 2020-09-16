@@ -9,32 +9,39 @@
 // mina inkluderingar
 #include "render/MeshResource.h"
 #include "core/Math_Library.h"
+#include "render/TextureResource.h"
 
 // Läser av vertex buffern! O:
 const GLchar* vs =
 "#version 430\n"
 "layout(location=0) in vec3 pos;\n"
-"layout(location=0) out vec4 Color;\n"
+"layout(location=1) in vec2 uv;\n"
+//"layout(location=0) out vec4 Color;\n"
+"out vec2 texCoord;\n"
 ""
 "uniform mat4 transformationMatrix;\n"
 ""
 "void main()\n"
 "{\n"
 "   gl_Position = transformationMatrix * vec4(pos, 1);\n"
-"	Color = vec4(abs(pos.x+0.5), abs(pos.y+0.5), abs(pos.z), 1);\n"
+"   texCoord = uv;\n"
+//"	Color = vec4(abs(pos.x+0.5), abs(pos.y+0.5), abs(pos.z), 1);\n"
 "}\n";
 
 // Målar efter instruktioner (i detta fall från output från vs!) O:
 const GLchar* ps =
 "#version 430\n"
-"in vec4 color;\n"
+//"in vec4 color;\n"
+"in vec2 texCoord;\n"
 "out vec4 Color;\n"
+"uniform sampler2D texColor;\n"
 "void main()\n"
 "{\n"
-"	Color = color;\n"
+"	Color = texture(texColor, texCoord);\n"
 "}\n";
 
 MeshResource mr; // example mesh here for easy access in both run and open functions
+TextureResource tr;
 
 using namespace Display;
 namespace Example
@@ -72,13 +79,13 @@ ExampleApp::Open()
 	GLfloat buf[] =
 	{
 		-0.5f,	-0.5f,	-1,			// pos 0
+		0, 0,						// uv coordinates pos 0
 		-0.5f,	0.5f,	-1,			// pos 1
+		0, 1,
 		0.5f,	0.5f,	-1,			// pos 2
+		1, 1,
 		0.5f,	-0.5f,	-1,
-		/*-0.5f,	-0.5f,	-1,
-		0.5f,	-0.5f,	-1,
-		0.5f,	0.5f,	-1,
-		-0.5f,	0.5f,	-1*/
+		1, 0
 	};
 	GLuint ibuf[] =
 	{
@@ -140,16 +147,22 @@ ExampleApp::Open()
 			delete[] buf;
 		}
 
+		// TODO: create vertex buffer (coordinates for pos and uv)
+		
+
 		// setup vba
 		mr.genVertexArray();
-		mr.genVertexBuffer(buf, sizeof(buf), 3); // total of 3 floats per stride
+		mr.genVertexBuffer(buf, sizeof(buf), 5); // total of 3 floats per stride
 		mr.genIndexBuffer(ibuf, sizeof(ibuf)/sizeof(GLuint));
 
 		mr.addArrayAttribute(3); // x, y, z for each vertex
+		mr.addArrayAttribute(2);
 
 		mr.vertexArrayUnbind();
 		mr.vertexUnbind();
 		mr.indexUnbind();
+
+		tr.loadFromFile("flower_texture.png");
 
 		return true;
 	}
@@ -169,6 +182,7 @@ ExampleApp::Run()
 	int transformationLocation = glGetUniformLocation(program, "transformationMatrix");
 	
 	glUseProgram(this->program);
+	tr.bindTexture();
 	mr.vertexArrayBind();
 	while (this->window->IsOpen())
 	{
@@ -185,6 +199,7 @@ ExampleApp::Run()
 		transVec.x += dx;
 		
 		// send updated data to shader
+		// TODO: mvp, modelmatrix redan klar (transformationMatrix)
 		transformationMatrix = Matrix4::translationMatrix(transVec.x, transVec.y, transVec.z)
 			* Matrix4::rotationZ(radians) * Matrix4::scaleMatrix(scalar);
 		glUniformMatrix4fv(transformationLocation, 1, GL_TRUE, &transformationMatrix[0]);
@@ -194,6 +209,7 @@ ExampleApp::Run()
 		this->window->SwapBuffers();
 	}
 	mr.vertexArrayUnbind();
+	tr.unbindTexture();
 	glUseProgram(0);
 }
 

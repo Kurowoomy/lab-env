@@ -65,8 +65,24 @@ public:
 class Matrix4 {
 public:
     //initialization
-    float m[16] = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}; //identity matrix
-    Matrix4(){}
+    float m[16];
+    Matrix4(){ //identity matrix
+        m[0] = 1; m[1] = 0; m[2] = 0; m[3] = 0;
+        m[4] = 0; m[5] = 1; m[6] = 0; m[7] = 0;
+        m[8] = 0; m[9] = 0; m[10] = 1; m[11] = 0;
+        m[12] = 0; m[13] = 0; m[14] = 0; m[15] = 1;
+    }
+    Matrix4(float* viewMatrixValues
+        /*float m0, float m1, float m2, float m3,
+        float m4, float m5, float m6, float m7,
+        float m8, float m9, float m10, float m11,
+        float m12, float m13, float m14, float m15*/
+    )
+    {
+        for (int i = 0; i < 16; i++) {
+            m[i] = viewMatrixValues[i];
+        }
+    }
     
     //operator overloading
     void operator=(Matrix4 matrix4) {
@@ -155,6 +171,39 @@ public:
         translationMatrix[7] = y;
         translationMatrix[11] = z;
         return translationMatrix;
+    }
+    /// 
+    static Matrix4 perspectiveMatrix(const float angle, const float aspect, const float near, const float far) {
+        Matrix4 perspectiveMatrix;
+        if (far - near == 0) {
+            return perspectiveMatrix;
+        }
+        float scale = 1 / (tanf(angle / 2));
+        float zp = far + near;
+        float zm = far - near;
+
+        perspectiveMatrix[0] = scale / aspect;
+        perspectiveMatrix[5] = scale;
+        perspectiveMatrix[10] = -zp / zm;
+        perspectiveMatrix[11] = -(2 * far * near) / zm;
+        perspectiveMatrix[14] = -1;
+        perspectiveMatrix[15] = 0;
+
+        return perspectiveMatrix;
+    }
+    static Matrix4 viewMatrix(Vec4 eye, Vec4 target, Vec4 up) {
+        Vec4 zAxis = (eye - target).normalize();
+        Vec4 xAxis = up.crossProduct(zAxis).normalize();
+        Vec4 yAxis = zAxis.crossProduct(xAxis);
+
+        float viewMatrixArray[16] =
+        {
+            xAxis.x, yAxis.x, zAxis.x, 0.0f,
+            xAxis.y, yAxis.y, zAxis.y, 0.0f,
+            xAxis.z, yAxis.z, zAxis.z, 0.0f,
+            0.0f,    0.0f,    0.0f,    1.0f
+        };
+        return Matrix4(viewMatrixArray);
     }
     ///Returns transposed matrix, where rows and columns have switched places.
     Matrix4 transpose() const { //switch places between rows and columns

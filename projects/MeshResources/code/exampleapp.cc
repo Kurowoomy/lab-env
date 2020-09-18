@@ -142,8 +142,7 @@ ExampleApp::Open()
 
 		// setup vba
 		mr.genVertexArray();
-		mr.genVertexBuffer(buf, sizeof(buf), 3); // total of 3 floats per stride
-		mr.genIndexBuffer(ibuf, sizeof(ibuf)/sizeof(GLuint));
+		mr.generateCube(1);
 
 		mr.addArrayAttribute(3); // x, y, z for each vertex
 

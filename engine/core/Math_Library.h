@@ -178,14 +178,14 @@ public:
         if (far - near == 0) {
             return perspectiveMatrix;
         }
-        float scale = 1 / (tanf(angle / 2));
-        float zp = far + near;
-        float zm = far - near;
+        float scale = 1 / (tanf(angle));
+        float zp = near + far;
+        float zm = near - far;
 
-        perspectiveMatrix[0] = scale / aspect;
-        perspectiveMatrix[5] = scale;
-        perspectiveMatrix[10] = -zp / zm;
-        perspectiveMatrix[11] = -(2 * far * near) / zm;
+        perspectiveMatrix[0] = scale;
+        perspectiveMatrix[5] = scale * aspect;
+        perspectiveMatrix[10] = zp / zm;
+        perspectiveMatrix[11] = (2 * far * near) / zm;
         perspectiveMatrix[14] = -1;
         perspectiveMatrix[15] = 0;
 

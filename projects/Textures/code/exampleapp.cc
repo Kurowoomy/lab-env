@@ -16,29 +16,29 @@ const GLchar* vs =
 "#version 430\n"
 "layout(location=0) in vec3 pos;\n"
 "layout(location=1) in vec2 uv;\n"
-"layout(location=0) out vec4 Color;\n"
-//"out vec2 texCoord;\n"
+//"layout(location=0) out vec4 Color;\n"
+"out vec2 texCoord;\n"
 ""
 "uniform mat4 transformationMatrix;\n"
 ""
 "void main()\n"
 "{\n"
 "   gl_Position = transformationMatrix * vec4(pos, 1);\n"
-//"   texCoord = uv;\n"
-"	Color = vec4(abs(pos.x+0.5), abs(pos.y+0.5), abs(pos.z), 1);\n"
+"   texCoord = uv;\n"
+//"	Color = vec4(abs(pos.x+0.5), abs(pos.y+0.5), abs(pos.z), 1);\n"
 "}\n";
 
 // Målar efter instruktioner (i detta fall från output från vs!) O:
 const GLchar* ps =
 "#version 430\n"
-"in vec4 color;\n"
-//"in vec2 texCoord;\n"
+//"in vec4 color;\n"
+"in vec2 texCoord;\n"
 "out vec4 Color;\n"
 "uniform sampler2D texColor;\n"
 "void main()\n"
 "{\n"
-//"	Color = texture(texColor, texCoord);\n"
-"   Color = color;"
+"	Color = vec4(texture(texColor, texCoord).rgb, 1.0f);\n"
+//"   Color = color;"
 "}\n";
 
 MeshResource mr; // example mesh here for easy access in both run and open functions
@@ -179,21 +179,27 @@ ExampleApp::Run()
 	Matrix4 mvp;
 	Matrix4 inverseModel;
 	Vec4 transVec;
-	Vec4 eye(0, 0, 9), target, up(0, 1, 0);
-	float radians = 0, dx = 0.006, scalar = 0.5, maxDistance = 0.75; //TODO: scalar och texturestorlek krockar
+	transVec.z = -1;
+	Vec4 eye(0, 0, 3), target, up(0, 1, 0);
+	float radians = 0, dx = 0.006, scalar = 0.5, maxDistance = 0.75; //TODO: scalar och projection samarbetar inte
 	int transformationLocation = glGetUniformLocation(program, "transformationMatrix");
 	
 	glUseProgram(this->program);
 	tr.bindTexture();
 	mr.vertexArrayBind();
 	
-	//viewMatrix = Matrix4::viewMatrix(;
+	
 	int width, height;
 	this->window->GetSize(width, height);
 	projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 100.0f);
+
+
+
 	while (this->window->IsOpen())
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
 		this->window->Update();
 
 		// do stuff
@@ -212,18 +218,18 @@ ExampleApp::Run()
 			* Matrix4::rotationZ(radians) * Matrix4::scaleMatrix(scalar);
 		// compute eye vector from inverse model matrix column 4 (x, y, z)
 		Matrix4::inverse(modelMatrix, inverseModel);
+		//inverseModel = inverseModel.transpose();
 		target.x = modelMatrix[0];
 		target.y = 0;
 		target.z = modelMatrix[10];
 		viewMatrix = Matrix4::viewMatrix(eye, target, up);
 
-		//mvp = projectionMatrix * viewMatrix * modelMatrix; //kan ha med projection matrix att göra..??
-		mvp = modelMatrix;
+		mvp = viewMatrix * modelMatrix; //kan ha med projection matrix att göra..??
+		//mvp = modelMatrix;
 
 
 		glUniformMatrix4fv(transformationLocation, 1, GL_TRUE, &mvp[0]);
-
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 
 		this->window->SwapBuffers();
 	}

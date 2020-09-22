@@ -77,12 +77,7 @@ public:
         m[8] = 0; m[9] = 0; m[10] = 1; m[11] = 0;
         m[12] = 0; m[13] = 0; m[14] = 0; m[15] = 1;
     }
-    Matrix4(float* viewMatrixValues
-        /*float m0, float m1, float m2, float m3,
-        float m4, float m5, float m6, float m7,
-        float m8, float m9, float m10, float m11,
-        float m12, float m13, float m14, float m15*/
-    )
+    Matrix4(float* viewMatrixValues)
     {
         for (int i = 0; i < 16; i++) {
             m[i] = viewMatrixValues[i];

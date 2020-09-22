@@ -10,7 +10,9 @@ SET(files_render_display
 	TextureResource.h
 	TextureResource.cc
 	stb_image.h
-	stb_image.cc)
+	stb_image.cc
+	ShaderObject.h
+	ShaderObject.cc)
 SOURCE_GROUP("display" FILES ${files_render_display})
 
 

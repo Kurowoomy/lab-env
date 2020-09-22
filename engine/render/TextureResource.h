@@ -13,4 +13,6 @@ public:
 	void genTexture();
 	void bindTexture();
 	void unbindTexture();
+
+	void destroyID();
 };

@@ -56,6 +56,11 @@ public:
         Vec4 vec = Vec4(x / length(), y / length(), z / length());
         return vec;
     }
+    void set(float x, float y, float z) {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
 
     ~Vec4(){}
 
@@ -178,14 +183,14 @@ public:
         if (far - near == 0) {
             return perspectiveMatrix;
         }
-        float scale = 1 / (tanf(angle));
+        float scale = 1/tanf(2 * M_PI - angle * (M_PI / 180) / 2);
         float zp = near + far;
         float zm = near - far;
 
         perspectiveMatrix[0] = scale;
         perspectiveMatrix[5] = scale * aspect;
         perspectiveMatrix[10] = zp / zm;
-        perspectiveMatrix[11] = (2 * far * near) / zm;
+        perspectiveMatrix[11] = 2 * far * near / zm;
         perspectiveMatrix[14] = -1;
         perspectiveMatrix[15] = 0;
 
@@ -194,16 +199,16 @@ public:
     static Matrix4 viewMatrix(Vec4 eye, Vec4 target, Vec4 up) {
         Vec4 zAxis = (eye - target).normalize();
         Vec4 xAxis = up.crossProduct(zAxis).normalize();
-        Vec4 yAxis = zAxis.crossProduct(xAxis);
+        Vec4 yAxis = zAxis.crossProduct(xAxis).normalize();
 
-        float viewMatrixArray[16] =
+        float viewMatrix[16] =
         {
-            xAxis.x, yAxis.x, zAxis.x, 0.0f,
-            xAxis.y, yAxis.y, zAxis.y, 0.0f,
-            xAxis.z, yAxis.z, zAxis.z, 0.0f,
+            xAxis.x, yAxis.x, zAxis.x, -(xAxis * eye),
+            xAxis.y, yAxis.y, zAxis.y, -(yAxis * eye),
+            xAxis.z, yAxis.z, zAxis.z, -(zAxis * eye),
             0.0f,    0.0f,    0.0f,    1.0f
         };
-        return Matrix4(viewMatrixArray);
+        return Matrix4(viewMatrix);
     }
     ///Returns transposed matrix, where rows and columns have switched places.
     Matrix4 transpose() const { //switch places between rows and columns

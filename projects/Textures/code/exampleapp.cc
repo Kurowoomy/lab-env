@@ -16,7 +16,6 @@ const GLchar* vs =
 "#version 430\n"
 "layout(location=0) in vec3 pos;\n"
 "layout(location=1) in vec2 uv;\n"
-//"layout(location=0) out vec4 Color;\n"
 "out vec2 texCoord;\n"
 ""
 "uniform mat4 transformationMatrix;\n"
@@ -25,20 +24,17 @@ const GLchar* vs =
 "{\n"
 "   gl_Position = transformationMatrix * vec4(pos, 1);\n"
 "   texCoord = uv;\n"
-//"	Color = vec4(abs(pos.x+0.5), abs(pos.y+0.5), abs(pos.z), 1);\n"
 "}\n";
 
 // Målar efter instruktioner (i detta fall från output från vs!) O:
 const GLchar* ps =
 "#version 430\n"
-//"in vec4 color;\n"
 "in vec2 texCoord;\n"
 "out vec4 Color;\n"
 "uniform sampler2D texColor;\n"
 "void main()\n"
 "{\n"
 "	Color = vec4(texture(texColor, texCoord).rgb, 1.0f);\n"
-//"   Color = color;"
 "}\n";
 
 MeshResource mr; // example mesh here for easy access in both run and open functions
@@ -76,23 +72,6 @@ ExampleApp::Open()
 	{
 		this->window->Close();
 	});
-
-	GLfloat buf[] =
-	{
-		-0.5f,	-0.5f,	-1,			// pos 0
-		0, 0,						// uv coordinates pos 0
-		-0.5f,	0.5f,	-1,			// pos 1
-		0, 1,
-		0.5f,	0.5f,	-1,			// pos 2
-		1, 1,
-		0.5f,	-0.5f,	-1,
-		1, 0
-	};
-	GLuint ibuf[] =
-	{
-		0, 1, 2,
-		2, 3, 0
-	};
 
 	if (this->window->Open())
 	{
@@ -148,7 +127,7 @@ ExampleApp::Open()
 			delete[] buf;
 		}
 
-		// setup vba
+		// setup vao
 		mr.genVertexArray();
 		mr.generateCube(1);
 
@@ -177,23 +156,20 @@ ExampleApp::Run()
 	Matrix4 viewMatrix;
 	Matrix4 projectionMatrix;
 	Matrix4 mvp;
-	Matrix4 inverseModel;
-	Vec4 transVec;
-	transVec.z = -1;
-	Vec4 eye(0, 0, 3), target, up(0, 1, 0);
-	float radians = 0, dx = 0.006, scalar = 0.5, maxDistance = 0.75; //TODO: scalar och projection samarbetar inte
-	int transformationLocation = glGetUniformLocation(program, "transformationMatrix");
-	
-	glUseProgram(this->program);
-	tr.bindTexture();
-	mr.vertexArrayBind();
-	
+	Vec4 transVec; // modelMatrix vector
+	float modelRadiansY = 0, scalar = 1; // modelMatrix values
+	float dx = 0.1, maxDistance = 2; // MeshResources lab animation
+	Vec4 eye(0, 0, 3), target(0, 0, 0), up(0, 1, 0); // viewMatrix vectors
+	float yRadians = 0; //viewMatrix values
 	
 	int width, height;
 	this->window->GetSize(width, height);
 	projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 100.0f);
-
-
+	
+	int transformationLocation = glGetUniformLocation(program, "transformationMatrix");
+	glUseProgram(this->program);
+	tr.bindTexture();
+	mr.vertexArrayBind();
 
 	while (this->window->IsOpen())
 	{
@@ -203,30 +179,25 @@ ExampleApp::Run()
 		this->window->Update();
 
 		// do stuff
+
+		//------- Rotation and translation from left to right -----------
 		// rotate 0.02 radians per frame
-		radians += 0.02;
-		// translation animation left to right. Change direction if maxDistance reached.
-		if (transVec.x <= -maxDistance || transVec.x >= maxDistance) {
+		//modelRadiansY -= 0.2;
+		//translation animation left to right. Change direction if maxDistance reached.
+		/*if (transVec.x <= -maxDistance || transVec.x >= maxDistance) {
 			dx = -dx;
 		}
-		transVec.x += dx;
+		transVec.x += dx;*/
+		//---------------------------------------------------------------
 		
-		// send updated data to shader
-		// TODO: mvp, modelmatrix redan klar (transformationMatrix)
-		
+		//------- Rotate camera while looking at cube position ----------
+		yRadians += 0.02;
+		//---------------------------------------------------------------
+
 		modelMatrix = Matrix4::translationMatrix(transVec.x, transVec.y, transVec.z)
-			* Matrix4::rotationZ(radians) * Matrix4::scaleMatrix(scalar);
-		// compute eye vector from inverse model matrix column 4 (x, y, z)
-		Matrix4::inverse(modelMatrix, inverseModel);
-		//inverseModel = inverseModel.transpose();
-		target.x = modelMatrix[0];
-		target.y = 0;
-		target.z = modelMatrix[10];
-		viewMatrix = Matrix4::viewMatrix(eye, target, up);
-
-		mvp = viewMatrix * modelMatrix; //kan ha med projection matrix att göra..??
-		//mvp = modelMatrix;
-
+			* Matrix4::rotationY(modelRadiansY) * Matrix4::scaleMatrix(scalar);
+		viewMatrix = Matrix4::viewMatrix(eye, target, up) * Matrix4::rotationY(yRadians); // rotate first, then center camera
+		mvp = projectionMatrix * viewMatrix * modelMatrix;
 
 		glUniformMatrix4fv(transformationLocation, 1, GL_TRUE, &mvp[0]);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
@@ -236,6 +207,10 @@ ExampleApp::Run()
 	mr.vertexArrayUnbind();
 	tr.unbindTexture();
 	glUseProgram(0);
+
+	glDeleteProgram(program);
+	tr.destroyID();
+	mr.destroyID();
 }
 
 } // namespace Example

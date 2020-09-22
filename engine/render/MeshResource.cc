@@ -145,17 +145,6 @@ void MeshResource::generateCube(GLfloat size) {
 	};
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ibuf), ibuf, GL_STATIC_DRAW);
 }
-//void MeshResource::genVertexBuffer(const GLfloat* buf, GLuint size, const GLuint stride) {
-//	this->stride = stride;
-//	glGenBuffers(1, &vertexID);
-//	glBindBuffer(GL_ARRAY_BUFFER, vertexID);
-//	glBufferData(GL_ARRAY_BUFFER, size, buf, GL_STATIC_DRAW);
-//}
-//void MeshResource::genIndexBuffer(const GLuint* ibuf, GLuint count) {
-//	glGenBuffers(1, &indexID);
-//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexID);
-//	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint), ibuf, GL_STATIC_DRAW);
-//}
 
 void MeshResource::addArrayAttribute(GLuint elementsPerVertex) {
 	glEnableVertexAttribArray(layouts);
@@ -164,6 +153,12 @@ void MeshResource::addArrayAttribute(GLuint elementsPerVertex) {
 	layouts++;
 }
 
-MeshResource::~MeshResource(){
+void MeshResource::destroyID()
+{
+	glDeleteBuffers(1, &vertexID);
+	glDeleteBuffers(1, &indexID);
 	glDeleteVertexArrays(1, &vertexArrayID);
+}
+
+MeshResource::~MeshResource(){
 }

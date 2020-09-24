@@ -12,7 +12,9 @@ SET(files_render_display
 	stb_image.h
 	stb_image.cc
 	ShaderObject.h
-	ShaderObject.cc)
+	ShaderObject.cc
+	ShaderVertex.txt
+	ShaderFragment.txt)
 SOURCE_GROUP("display" FILES ${files_render_display})
 
 

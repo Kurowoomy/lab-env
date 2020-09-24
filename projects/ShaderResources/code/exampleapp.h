@@ -8,7 +8,11 @@
 //------------------------------------------------------------------------------
 #include "core/app.h"
 #include "render/window.h"
+
+// my own includes
 #include "render/MeshResource.h"
+#include "render/ShaderObject.h"
+#include "render/TextureResource.h"
 
 namespace Example
 {

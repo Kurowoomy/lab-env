@@ -6,9 +6,34 @@
 #include "exampleapp.h"
 #include <cstring>
 
-MeshResource mr; // example mesh here for easy access in both run and open functions
-TextureResource tr;
-ShaderObject so;
+GraphicsNode gn;
+
+//------ Mouse movement ---------------------------------------
+Display::Window* testWindow;
+
+static void test(int b, int c) {
+	printf("%i", b);
+	printf(" ");
+	printf("%i", c);
+	gn.setTransform(Matrix4::translationMatrix(0, 0, 0)
+		* Matrix4::rotationY(c*0.01) * Matrix4::rotationX(b*0.01) * Matrix4::scaleMatrix(1));
+}
+static void stopMouseMovement(int a, int b) {
+
+}
+
+static void test2(int a, int b, int c) {
+	if (a == 0) {
+		testWindow->SetMouseMoveFunction(test);
+	}
+	if (a == 1) {
+		testWindow->SetMouseMoveFunction(stopMouseMovement);
+	}
+	if (a == 2) {
+		printf("2 pressed");
+	}
+}
+//-------------------------------------------------------------
 
 using namespace Display;
 namespace Example
@@ -38,6 +63,7 @@ ExampleApp::Open()
 {
 	App::Open();
 	this->window = new Display::Window;
+	// TODO: kolla närmare på detta och fortsätt eventuellt i samma stil som ovan
 	window->SetKeyPressFunction([this](int32, int32, int32, int32)
 	{
 		this->window->Close();
@@ -47,23 +73,16 @@ ExampleApp::Open()
 	{
 		// set clear color to gray
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+		gn.setMesh(MeshResource::Shape::CUBE, { 3, 2 }, 1);		
+		gn.setShader("C:/Users/emmeli-8-local/Documents/S0006E Programmering av realtidsgrafik/lab-env/engine/render/ShaderVertex.txt", 
+			"C:/Users/emmeli-8-local/Documents/S0006E Programmering av realtidsgrafik/lab-env/engine/render/ShaderFragment.txt");
+		gn.setTexture("flower_texture.png");
+
+		testWindow = window;
 		
-		so.generateVertexShader("C:/Users/Kurowoomy/Documents/Universitetet/S0006E Programmering av realtidsgrafik/lab-env/engine/render/ShaderVertex.txt");
-		so.generateFragmentShader("C:/Users/Kurowoomy/Documents/Universitetet/S0006E Programmering av realtidsgrafik/lab-env/engine/render/ShaderFragment.txt");
-		so.generateProgram();
+		window->SetMousePressFunction(test2);
 
-		// setup vao
-		mr.genVertexArray();
-		mr.generateCube(1);
-
-		mr.addArrayAttribute(3); // x, y, z for each vertex
-		mr.addArrayAttribute(2);
-
-		mr.vertexArrayUnbind();
-		mr.vertexUnbind();
-		mr.indexUnbind();
-
-		tr.loadFromFile("flower_texture.png");
 
 		return true;
 	}
@@ -77,7 +96,6 @@ void
 ExampleApp::Run()
 {
 	// animation setup
-	Matrix4 modelMatrix;
 	Matrix4 viewMatrix;
 	Matrix4 projectionMatrix;
 	Matrix4 mvp;
@@ -86,15 +104,11 @@ ExampleApp::Run()
 	float dx = 0.1, maxDistance = 2; // MeshResources lab animation
 	Vec4 eye(0, 0, 3), target(0, 0, 0), up(0, 1, 0); // viewMatrix vectors
 	float yRadians = 0; //viewMatrix values
-	
 	int width, height;
 	this->window->GetSize(width, height);
 	projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 100.0f);
 	
-	so.makeUniform("transformationMatrix"); //skapa location så man slipper göra det varje frame
-	so.useProgram();
-	tr.bindTexture();
-	mr.vertexArrayBind();
+	gn.getShader().makeUniform("transformationMatrix"); //skapa location så man slipper göra det varje frame
 
 	while (this->window->IsOpen())
 	{
@@ -104,38 +118,27 @@ ExampleApp::Run()
 		this->window->Update();
 
 		// do stuff
+		//------- Rotation and translation ------------------------------
 
-		//------- Rotation and translation from left to right -----------
-		// rotate 0.02 radians per frame
-		//modelRadiansY -= 0.2;
-		//translation animation left to right. Change direction if maxDistance reached.
-		/*if (transVec.x <= -maxDistance || transVec.x >= maxDistance) {
-			dx = -dx;
-		}
-		transVec.x += dx;*/
+		// TODO: read mouse movement and use it to change rotation
+		
+
+		/*gn.setTransform(Matrix4::translationMatrix(transVec.x, transVec.y, transVec.z)
+			* Matrix4::rotationY(modelRadiansY) * Matrix4::scaleMatrix(scalar));*/
 		//---------------------------------------------------------------
 		
 		//------- Rotate camera while looking at cube position ----------
 		yRadians += 0.02;
+		viewMatrix = Matrix4::viewMatrix(eye, target, up) * Matrix4::rotationY(0); // rotate first, then center camera
 		//---------------------------------------------------------------
 
-		modelMatrix = Matrix4::translationMatrix(transVec.x, transVec.y, transVec.z)
-			* Matrix4::rotationY(modelRadiansY) * Matrix4::scaleMatrix(scalar);
-		viewMatrix = Matrix4::viewMatrix(eye, target, up) * Matrix4::rotationY(yRadians); // rotate first, then center camera
-		mvp = projectionMatrix * viewMatrix * modelMatrix;
-
-		so.uploadUniformMatrix4("transformationMatrix", mvp);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+		gn.getShader().useProgram();
+		gn.getShader().uploadUniformMatrix4("transformationMatrix", projectionMatrix * viewMatrix * gn.getTransform());
+		gn.draw();
 
 		this->window->SwapBuffers();
 	}
-	mr.vertexArrayUnbind();
-	tr.unbindTexture();
-	so.quitProgram();
-
-	so.destroy();
-	tr.destroyID();
-	mr.destroyID();
+	gn.destroyAll();
 }
 
 } // namespace Example

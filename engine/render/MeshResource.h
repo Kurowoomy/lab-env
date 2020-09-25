@@ -5,6 +5,11 @@
 /// Contains ID for 1 vertexBuffer, 1 indexBuffer, 1 vertexArray
 class MeshResource {
 public:
+	enum class Shape {
+		SQUARE,
+		CUBE
+	};
+
 	GLuint vertexID;
 	GLuint indexID;
 	GLuint vertexArrayID;

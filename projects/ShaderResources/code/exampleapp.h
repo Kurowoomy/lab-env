@@ -10,9 +10,10 @@
 #include "render/window.h"
 
 // my own includes
-#include "render/MeshResource.h"
-#include "render/ShaderObject.h"
-#include "render/TextureResource.h"
+//#include "render/MeshResource.h"
+//#include "render/ShaderObject.h"
+//#include "render/TextureResource.h"
+#include "render/GraphicsNode.h"
 
 namespace Example
 {

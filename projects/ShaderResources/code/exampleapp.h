@@ -29,6 +29,10 @@ public:
 	bool Open();
 	/// run app
 	void Run();
+
+	// my own functions
+
+
 private:
 
 	GLuint program;
@@ -36,5 +40,11 @@ private:
 	GLuint pixelShader;
 	GLuint triangle;
 	Display::Window* window;
+
+	// my own members
+	bool hasPressedLeft = false, isRotating = false, hasPressedKey = false;
+	GraphicsNode gn;
+	float rotationSpeed = 0.01, moveSpeed = 0.1;
+	float64 lastRadX = -1, lastRadY, lastMoveX, lastMoveY;
 };
 } // namespace Example

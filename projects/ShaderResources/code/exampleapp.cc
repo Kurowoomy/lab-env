@@ -6,35 +6,6 @@
 #include "exampleapp.h"
 #include <cstring>
 
-GraphicsNode gn;
-
-//------ Mouse movement ---------------------------------------
-Display::Window* testWindow;
-
-static void test(int b, int c) {
-	printf("%i", b);
-	printf(" ");
-	printf("%i", c);
-	gn.setTransform(Matrix4::translationMatrix(0, 0, 0)
-		* Matrix4::rotationY(c*0.01) * Matrix4::rotationX(b*0.01) * Matrix4::scaleMatrix(1));
-}
-static void stopMouseMovement(int a, int b) {
-
-}
-
-static void test2(int a, int b, int c) {
-	if (a == 0) {
-		testWindow->SetMouseMoveFunction(test);
-	}
-	if (a == 1) {
-		testWindow->SetMouseMoveFunction(stopMouseMovement);
-	}
-	if (a == 2) {
-		printf("2 pressed");
-	}
-}
-//-------------------------------------------------------------
-
 using namespace Display;
 namespace Example
 {
@@ -63,10 +34,61 @@ ExampleApp::Open()
 {
 	App::Open();
 	this->window = new Display::Window;
-	// TODO: kolla närmare på detta och fortsätt eventuellt i samma stil som ovan
-	window->SetKeyPressFunction([this](int32, int32, int32, int32)
+	window->SetKeyPressFunction([this](int32 key, int32 scancode, int32 action, int32 mods)
 	{
-		this->window->Close();
+			if (action == 1 || action == 2) { // 1 = pressed, 2 = holding, 0 = released 
+				switch (key) {
+				case 263: // left
+					gn.setTransform(Matrix4::translationMatrix(moveSpeed, 0, 0) * gn.getTransform());
+					break;
+				case 262: // right
+					gn.setTransform(Matrix4::translationMatrix(-moveSpeed, 0, 0) * gn.getTransform());
+					break;
+				case 265: // up
+					gn.setTransform(Matrix4::translationMatrix(0, -moveSpeed, 0) * gn.getTransform());
+					break;
+				case 264: // down
+					gn.setTransform(Matrix4::translationMatrix(0, moveSpeed, 0) * gn.getTransform());
+					break;
+				default:
+					this->window->Close();
+					break;
+				}
+			}
+	});
+	window->SetMousePressFunction([this](int32 button, int32 action, int32 mods)
+	{
+		if (button == 0) {
+			if (!hasPressedLeft) {
+				hasPressedLeft = true;
+				window->SetMouseMoveFunction([this](float64 x, float64 y)
+				{
+						
+					if (!isRotating) { // DONE :D
+						isRotating = true;
+						lastRadX = x;
+						lastRadY = y;
+						lastMoveX = x;
+						lastMoveY = y;
+					}
+					// TODO: need to rotate it around its own x and y axis T_T Can only rotate around world axis.
+					gn.setTransform(Matrix4::rotationY(-(x - lastMoveX) * rotationSpeed) * Matrix4::rotationX(-(y - lastMoveY) * rotationSpeed) * gn.getTransform());
+					lastRadX += x - lastMoveX;
+					lastRadY += y - lastMoveY;
+					lastMoveX = x;
+					lastMoveY = y;
+				});
+			}
+			else {
+				hasPressedLeft = false;
+				isRotating = false;
+				window->SetMouseMoveFunction([this](float64 x, float64 y)
+				{
+					// do nothing
+				});
+			}
+				
+		}
 	});
 
 	if (this->window->Open())
@@ -74,16 +96,12 @@ ExampleApp::Open()
 		// set clear color to gray
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
+		// create a graphics node object
 		gn.setMesh(MeshResource::Shape::CUBE, { 3, 2 }, 1);		
 		gn.setShader("C:/Users/emmeli-8-local/Documents/S0006E Programmering av realtidsgrafik/lab-env/engine/render/ShaderVertex.txt", 
 			"C:/Users/emmeli-8-local/Documents/S0006E Programmering av realtidsgrafik/lab-env/engine/render/ShaderFragment.txt");
 		gn.setTexture("flower_texture.png");
-
-		testWindow = window;
 		
-		window->SetMousePressFunction(test2);
-
-
 		return true;
 	}
 	return false;
@@ -99,16 +117,17 @@ ExampleApp::Run()
 	Matrix4 viewMatrix;
 	Matrix4 projectionMatrix;
 	Matrix4 mvp;
-	Vec4 transVec; // modelMatrix vector
-	float modelRadiansY = 0, scalar = 1; // modelMatrix values
-	float dx = 0.1, maxDistance = 2; // MeshResources lab animation
-	Vec4 eye(0, 0, 3), target(0, 0, 0), up(0, 1, 0); // viewMatrix vectors
+	float modelRadians = 0, scalar = 1; // modelMatrix values
 	float yRadians = 0; //viewMatrix values
+	Vec4 eye(0, 0, 3), target(0, 0, 0), up(0, 1, 0); // viewMatrix vectors
+
+	// create projection matrix
 	int width, height;
 	this->window->GetSize(width, height);
 	projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 100.0f);
 	
-	gn.getShader().makeUniform("transformationMatrix"); //skapa location så man slipper göra det varje frame
+	// create shader location once before loop
+	gn.getShader().makeUniform("transformationMatrix");
 
 	while (this->window->IsOpen())
 	{
@@ -118,16 +137,12 @@ ExampleApp::Run()
 		this->window->Update();
 
 		// do stuff
-		//------- Rotation and translation ------------------------------
-
-		// TODO: read mouse movement and use it to change rotation
-		
-
-		/*gn.setTransform(Matrix4::translationMatrix(transVec.x, transVec.y, transVec.z)
-			* Matrix4::rotationY(modelRadiansY) * Matrix4::scaleMatrix(scalar));*/
+		//------- Automatic rotation and translation ------------------------------
+		gn.setTransform(Matrix4::translationMatrix(0, 0, 0)
+			* Matrix4::rotationY(modelRadians * rotationSpeed) * Matrix4::rotationX(modelRadians * rotationSpeed) * Matrix4::scaleMatrix(scalar) * gn.getTransform());
 		//---------------------------------------------------------------
 		
-		//------- Rotate camera while looking at cube position ----------
+		//------- Automatic camera rotation while looking at cube position ----------
 		yRadians += 0.02;
 		viewMatrix = Matrix4::viewMatrix(eye, target, up) * Matrix4::rotationY(0); // rotate first, then center camera
 		//---------------------------------------------------------------

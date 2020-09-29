@@ -1,6 +1,8 @@
 #pragma once
 
 #include "GL/glew.h"
+#include <vector>
+#include "core/Math_Library.h"
 
 /// Contains ID for 1 vertexBuffer, 1 indexBuffer, 1 vertexArray
 class MeshResource {
@@ -13,7 +15,9 @@ public:
 	GLuint vertexID;
 	GLuint indexID;
 	GLuint vertexArrayID;
-	GLuint stride, layouts, offset; // used in addArrayAttribute
+	GLuint layouts, offset; // used in addArrayAttribute
+	std::vector<Vec3> vertices, normals;
+	std::vector<Vec2> uvs;
 
 	MeshResource();
 

@@ -13,6 +13,7 @@ class GraphicsNode {
 public:
 	void setMesh(MeshResource& mesh);
 	void setMesh(MeshResource::Shape shape, const int (&elementsPerVertex)[2], float size);
+	void setMesh(const char* objPath);
 	void setTexture(TextureResource& texture);
 	void setTexture(std::string textureFile);
 	void setShader(ShaderObject& shader);

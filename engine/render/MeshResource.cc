@@ -6,7 +6,6 @@ MeshResource::MeshResource() {
 	indexID = 0;
 	vertexArrayID = 0;
 	layouts = 0;
-	stride = 0;
 	offset = 0;
 }
 
@@ -34,7 +33,6 @@ void MeshResource::genVertexArray() {
 	glBindVertexArray(vertexArrayID);
 }
 void MeshResource::generateSquare(GLfloat size) {
-	stride = 5;
 	glGenBuffers(1, &vertexID);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexID);
 	GLfloat buf[] =
@@ -59,7 +57,6 @@ void MeshResource::generateSquare(GLfloat size) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ibuf), ibuf, GL_STATIC_DRAW);
 }
 void MeshResource::generateCube(GLfloat size) {
-	stride = 5;
 	glGenBuffers(1, &vertexID);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexID);
 	GLfloat buf[] =

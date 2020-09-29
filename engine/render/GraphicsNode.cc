@@ -28,6 +28,93 @@ void GraphicsNode::setMesh(MeshResource::Shape shape, const int (&elementsPerVer
 	mesh.get()->vertexUnbind();
 	mesh.get()->indexUnbind();
 }
+void GraphicsNode::setMesh(const char* objPath)
+{
+	// read objFile
+	std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
+	std::vector<Vec3> tempVertices, tempNormals;
+	std::vector<Vec2> tempUvs;
+	FILE* objFile = fopen(objPath, "r");
+	if (objFile == NULL) {
+		printf("Impossible to open the obj file !\n");
+	}
+	while (true) {
+		char firstWord[16];
+		int readBytes = fscanf(objFile, "%s", firstWord);
+		if (readBytes == EOF) {
+			break;
+		}
+		if (strcmp(firstWord, "v") == 0) {
+			Vec3 vertex;
+			fscanf(objFile, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+			tempVertices.push_back(vertex);
+		}
+		else if (strcmp(firstWord, "vt") == 0) {
+			Vec2 uv;
+			fscanf(objFile, "%f %f\n", &uv.x, &uv.y);
+			tempUvs.push_back(uv);
+		}
+		else if (strcmp(firstWord, "vn") == 0) {
+			Vec3 normal;
+			fscanf(objFile, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
+			tempNormals.push_back(normal);
+		}
+		else if (strcmp(firstWord, "f") == 0) {
+			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
+			int matches = fscanf(objFile, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
+			if (matches != 9) {
+				printf("File can't be read by our simple parser :( Try exporting with other options\n");
+			}
+			vertexIndices.push_back(vertexIndex[0]);
+			vertexIndices.push_back(vertexIndex[1]);
+			vertexIndices.push_back(vertexIndex[2]);
+			uvIndices.push_back(uvIndex[0]);
+			uvIndices.push_back(uvIndex[1]);
+			uvIndices.push_back(uvIndex[2]);
+			normalIndices.push_back(normalIndex[0]);
+			normalIndices.push_back(normalIndex[1]);
+			normalIndices.push_back(normalIndex[2]);
+		}
+	}
+
+	// make mesh
+	mesh = std::make_shared<MeshResource>();
+	// TODO: lägg till uv[i] direkt efter vertex[i] i en enda buffer; mesh.get()->vertices
+	for (unsigned int i = 0; i < vertexIndices.size(); i++) {
+		unsigned int vertexIndex = vertexIndices[i];
+		Vec3 vertex = tempVertices[vertexIndex - 1];
+		mesh.get()->vertices.push_back(vertex);
+	}
+	for (unsigned int i = 0; i < uvIndices.size(); i++) {
+		unsigned int uvIndex = uvIndices[i];
+		Vec2 uv = tempUvs[uvIndex - 1];
+		mesh.get()->uvs.push_back(uv);
+	}
+	for (unsigned int i = 0; i < normalIndices.size(); i++) {
+		unsigned int normalIndex = normalIndices[i];
+		Vec3 normal = tempNormals[normalIndex - 1];
+		mesh.get()->normals.push_back(normal);
+	}
+
+	// transfer to GPU
+	mesh.get()->genVertexArray();
+	glGenBuffers(1, &mesh.get()->vertexID);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.get()->vertexID);
+	glBufferData(GL_ARRAY_BUFFER, mesh.get()->vertices.size() * sizeof(Vec3), &mesh.get()->vertices[0], GL_STATIC_DRAW);
+	glGenBuffers(1, &mesh.get()->indexID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.get()->indexID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexIndices.size() * sizeof(unsigned int), &vertexIndices[0], GL_STATIC_DRAW);
+
+	mesh.get()->addArrayAttribute(3); // vertices
+	mesh.get()->addArrayAttribute(2); // uvs
+
+	mesh.get()->vertexArrayUnbind();
+	mesh.get()->vertexUnbind();
+	mesh.get()->indexUnbind();
+
+	// for drawing, delete later
+	vertices = mesh.get()->uvs.size();
+}
 void GraphicsNode::setTexture(TextureResource& texture)
 {
 	this->texture = std::make_shared<TextureResource>(texture);

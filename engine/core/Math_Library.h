@@ -1,6 +1,116 @@
+#pragma once
+
 #define _USE_MATH_DEFINES //for PI
 #include <math.h>
 
+class Vec2 {
+public:
+    //initialization
+    float x, y;
+    Vec2() {
+        x = 0;
+        y = 0;
+    }
+    Vec2(float x, float y) {
+        this->x = x;
+        this->y = y;
+    }
+
+    //operator overloading
+    void operator=(const Vec2& vec2) {
+        x = vec2.x;
+        y = vec2.y;
+    }
+    Vec2 operator+(Vec2& vec2) const { //adds this and vec4, returns a new Vec4
+        return Vec2(x + vec2.x, y + vec2.y);
+    }
+    Vec2 operator-(Vec2& vec2) const { //subtracts vec4 from this
+        return Vec2(x - vec2.x, y - vec2.y);
+    }
+    ///Scale the vector by multiplying it with a float.
+    Vec2 operator*(float scalar) const { //scale the vector
+        return Vec2(x * scalar, y * scalar);
+    }
+    ///Multiplying two vectors results in a dot product.
+    float operator*(Vec2& vec2) const { //dot product
+        return x * vec2.x + y * vec2.y;
+    }
+
+    //operations
+    ///Get length of vector.
+    float length() const {
+        return sqrtf(x * x + y * y);
+    }
+    ///Normalize this vector, return new vector as result. Depends on length().
+    Vec2 normalize() const { //normalizing
+        Vec2 vec = Vec2(x / length(), y / length());
+        return vec;
+    }
+    void set(float x, float y) {
+        this->x = x;
+        this->y = y;
+    }
+
+    ~Vec2() {}
+};
+class Vec3 {
+public:
+    //initialization
+    float x, y, z;
+    Vec3() {
+        x = 0;
+        y = 0;
+        z = 0;
+    }
+    Vec3(float x, float y, float z) {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
+
+    //operator overloading
+    void operator=(const Vec3& vec3) {
+        x = vec3.x;
+        y = vec3.y;
+        z = vec3.z;
+    }
+    Vec3 operator+(Vec3& vec3) const { //adds this and vec4, returns a new Vec4
+        return Vec3(x + vec3.x, y + vec3.y, z + vec3.z);
+    }
+    Vec3 operator-(Vec3& vec3) const { //subtracts vec4 from this
+        return Vec3(x - vec3.x, y - vec3.y, z - vec3.z);
+    }
+    ///Scale the vector by multiplying it with a float.
+    Vec3 operator*(float scalar) const { //scale the vector
+        return Vec3(x * scalar, y * scalar, z * scalar);
+    }
+    ///Multiplying two vectors results in a dot product.
+    float operator*(Vec3& vec3) const { //dot product
+        return x * vec3.x + y * vec3.y + z * vec3.z;
+    }
+
+    //operations
+    ///Returns the cross product as a new vector.
+    Vec3 crossProduct(Vec3& vec3) const { //cross product
+        return Vec3(y * vec3.z - z * vec3.y, z * vec3.x - x * vec3.z, x * vec3.y - y * vec3.x);
+    }
+    ///Get length of vector.
+    float length() const {
+        return sqrtf(x * x + y * y + z * z);
+    }
+    ///Normalize this vector, return new vector as result. Depends on length().
+    Vec3 normalize() const { //normalizing
+        Vec3 vec = Vec3(x / length(), y / length(), z / length());
+        return vec;
+    }
+    void set(float x, float y, float z) {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
+
+    ~Vec3() {}
+};
 ///All elements are of type float. The value of the members x, y, z, and w need to be changed directly, no functions used. Default values are (0, 0, 0, 1).
 class Vec4
 {

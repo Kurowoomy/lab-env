@@ -18,6 +18,7 @@ public:
 	GLuint layouts, offset; // used in addArrayAttribute
 	std::vector<Vec3> vertices, normals;
 	std::vector<Vec2> uvs;
+	GLuint textureID;
 
 	MeshResource();
 

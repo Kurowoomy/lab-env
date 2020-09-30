@@ -79,15 +79,13 @@ void GraphicsNode::setMesh(const char* objPath)
 
 	// make mesh
 	mesh = std::make_shared<MeshResource>();
-	// TODO: lägg till uv[i] direkt efter vertex[i] i en enda buffer; mesh.get()->vertices
 	for (unsigned int i = 0; i < vertexIndices.size(); i++) {
-		unsigned int vertexIndex = vertexIndices[i];
-		Vec3 vertex = tempVertices[vertexIndex - 1];
+		Vec3 vertex = tempVertices[vertexIndices[i] - 1];
 		mesh.get()->vertices.push_back(vertex);
 	}
 	for (unsigned int i = 0; i < uvIndices.size(); i++) {
-		unsigned int uvIndex = uvIndices[i];
-		Vec2 uv = tempUvs[uvIndex - 1];
+		Vec2 uv = tempUvs[uvIndices[i] - 1];
+		uv.y = 1 - uv.y;
 		mesh.get()->uvs.push_back(uv);
 	}
 	for (unsigned int i = 0; i < normalIndices.size(); i++) {
@@ -95,6 +93,12 @@ void GraphicsNode::setMesh(const char* objPath)
 		Vec3 normal = tempNormals[normalIndex - 1];
 		mesh.get()->normals.push_back(normal);
 	}
+	// Todo: iterate over all faces and add 1 to index buffer (GL_ELEMENT_ARRAY_BUFFER) everytime an unique
+	// v/vt/vn combination is found :D let's gooo ----------------------
+
+
+
+	// -----------------------------------------------------------------
 
 	// transfer to GPU
 	mesh.get()->genVertexArray();
@@ -106,14 +110,15 @@ void GraphicsNode::setMesh(const char* objPath)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexIndices.size() * sizeof(unsigned int), &vertexIndices[0], GL_STATIC_DRAW);
 
 	mesh.get()->addArrayAttribute(3); // vertices
+	mesh.get()->vertexUnbind();
+	glGenBuffers(1, &mesh.get()->textureID);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.get()->textureID);
+	glBufferData(GL_ARRAY_BUFFER, mesh.get()->uvs.size() * sizeof(Vec3), &mesh.get()->uvs[0], GL_STATIC_DRAW);
 	mesh.get()->addArrayAttribute(2); // uvs
+	mesh.get()->vertexUnbind();
 
 	mesh.get()->vertexArrayUnbind();
-	mesh.get()->vertexUnbind();
 	mesh.get()->indexUnbind();
-
-	// for drawing, delete later
-	vertices = mesh.get()->uvs.size();
 }
 void GraphicsNode::setTexture(TextureResource& texture)
 {
@@ -161,7 +166,8 @@ void GraphicsNode::draw()
 {
 	getTexture().bindTexture();
 	getMesh().vertexArrayBind();
-	glDrawElements(GL_TRIANGLES, vertices, GL_UNSIGNED_INT, nullptr);
+	//glDrawElements(GL_TRIANGLES, vertices, GL_UNSIGNED_INT, nullptr);
+	glDrawElements(GL_TRIANGLES, mesh.get()->uvs.size(), GL_UNSIGNED_INT, nullptr);
 	getMesh().vertexArrayUnbind();
 	getTexture().unbindTexture();
 	getShader().quitProgram();

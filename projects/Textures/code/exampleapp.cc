@@ -158,7 +158,7 @@ ExampleApp::Run()
 	Matrix4 mvp;
 	Vec4 transVec; // modelMatrix vector
 	float modelRadiansY = 0, scalar = 1; // modelMatrix values
-	float dx = 0.1, maxDistance = 2; // MeshResources lab animation
+	float dx = 0.05, maxDistance = 2; // MeshResources lab animation
 	Vec4 eye(0, 0, 3), target(0, 0, 0), up(0, 1, 0); // viewMatrix vectors
 	float yRadians = 0; //viewMatrix values
 	

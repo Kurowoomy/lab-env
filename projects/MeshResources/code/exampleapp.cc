@@ -142,7 +142,7 @@ ExampleApp::Open()
 
 		// setup vba
 		mr.genVertexArray();
-		mr.generateCube(1);
+		mr.generateSquare(1);
 
 		mr.addArrayAttribute(3); // x, y, z for each vertex
 

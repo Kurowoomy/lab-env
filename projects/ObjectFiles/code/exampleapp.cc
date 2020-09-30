@@ -63,6 +63,7 @@ ExampleApp::Open()
 				hasPressedLeft = true;
 				window->SetMouseMoveFunction([this](float64 x, float64 y)
 				{
+						
 					if (!isRotating) {
 						isRotating = true;
 						lastRadX = x;
@@ -75,10 +76,10 @@ ExampleApp::Open()
 						gn.getTransform()[3], gn.getTransform()[7], gn.getTransform()[11]);
 					Matrix4 invTranslation = Matrix4::translationMatrix(
 						-gn.getTransform()[3], -gn.getTransform()[7], -gn.getTransform()[11]);
-					
+
 					gn.setTransform(translation * Matrix4::rotationY(-(x - lastMoveX) * rotationSpeed)
 						* Matrix4::rotationX(-(y - lastMoveY) * rotationSpeed) * invTranslation * gn.getTransform());
-					
+
 					lastRadX += x - lastMoveX;
 					lastRadY += y - lastMoveY;
 					lastMoveX = x;
@@ -103,8 +104,7 @@ ExampleApp::Open()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 		// create a graphics node object
-		// TODO: använd setMesh(objPath) istället för att generera en egen mesh
-		gn.setMesh(MeshResource::Shape::CUBE, { 3, 2 }, 1);	
+		gn.setMesh("C:/Users/Kurowoomy/Documents/Universitetet/S0006E Programmering av realtidsgrafik/lab-env/engine/render/cube.obj");
 		gn.setShader("C:/Users/Kurowoomy/Documents/Universitetet/S0006E Programmering av realtidsgrafik/lab-env/engine/render/ShaderVertex.txt", 
 			"C:/Users/Kurowoomy/Documents/Universitetet/S0006E Programmering av realtidsgrafik/lab-env/engine/render/ShaderFragment.txt");
 		gn.setTexture("flower_texture.png");
@@ -145,9 +145,8 @@ ExampleApp::Run()
 
 		// do stuff
 		//------- Automatic rotation and translation ------------------------------
-		// TODO: flytta kuben till mitten, rotera, flytta tillbaka kuben! o: Det är det jag missat!
-		/*gn.setTransform(Matrix4::translationMatrix(0, 0, 0) * Matrix4::rotationY(modelRadians * rotationSpeed) *
-			 Matrix4::scaleMatrix(1) * gn.getTransform());*/
+		/*gn.setTransform(Matrix4::translationMatrix(0, 0, 0) * Matrix4::rotationY(modelRadians * rotationSpeed)
+			* Matrix4::rotationX(modelRadians * rotationSpeed) * Matrix4::scaleMatrix(scalar) * gn.getTransform());*/
 		//---------------------------------------------------------------
 		
 		//------- Automatic camera rotation while looking at cube position ----------

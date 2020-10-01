@@ -77,6 +77,55 @@ void GraphicsNode::setMesh(const char* objPath)
 		}
 	}
 
+	
+	// Todo: iterate over all faces and add 1 to index buffer (GL_ELEMENT_ARRAY_BUFFER) everytime an unique
+	// v/vt/vn combination is found :D let's gooo ----------------------
+
+	std::vector<unsigned int> indexBuffer;
+	unsigned int ibuf[] =
+	{
+		0, 1, 2,
+		3, 4, 5,
+		6, 7, 8,
+		9, 10, 11,
+		12, 13, 14,
+		0, 15, 1,
+		3, 16, 4,
+		6, 17, 7,
+		9, 18, 10,
+		12, 19, 13,
+		0, 0, 0,
+		0, 0, 0
+	};
+	std::vector<Vec3> uniqueV, uniqueN;
+	std::vector<Vec2> uniqueU;
+	// for each index from obj file:
+	for (int i = 0; i < vertexIndices.size(); i++) {
+
+		unsigned short index;
+		//bool found = getSimilarVertexIndex(in_vertices[i], in_uvs[i], in_normals[i], out_vertices, out_uvs, out_normals, index);
+
+		//// check all uniqueV.. if they match
+		//for (int j = 0; j < uniqueV.size(); j++) {
+		//	if (fabs(tempVertices[i].x - uniqueV[j].x) < 0.01f &&
+		//		fabs(tempVertices[i].y - uniqueV[j].y) < 0.01f &&
+		//		fabs(tempVertices[i].z - uniqueV[j].z) < 0.01f &&
+		//		fabs(tempUvs[i].x - uniqueU[j].x) < 0.01f &&
+		//		fabs(tempUvs[i].y - uniqueU[j].y) < 0.01f &&
+		//		fabs(tempNormals[i].x - uniqueN[j].x) < 0.01f &&
+		//		fabs(tempNormals[i].y - uniqueN[j].y) < 0.01f &&
+		//		fabs(tempNormals[i].z - uniqueN[j].z) < 0.01f) {
+		//		// if all is alike, only add j to indexBuffer (push_back(j))
+		//		indexBuffer.push_back(j);
+		//	}
+		//}
+		//// if no match, uniqueV.push_back(vertexIndices[i]) and indexBuffer.push_back(uniqueV.size() - 1)
+		//uniqueV.push_back(tempVertices[i]);
+		//uniqueU.push_back(tempUvs[i]);
+		//uniqueN.push_back(tempNormals[i]);
+		//indexBuffer.push_back(uniqueV.size() - 1);
+	}
+
 	// make mesh
 	mesh = std::make_shared<MeshResource>();
 	for (unsigned int i = 0; i < vertexIndices.size(); i++) {
@@ -93,11 +142,6 @@ void GraphicsNode::setMesh(const char* objPath)
 		Vec3 normal = tempNormals[normalIndex - 1];
 		mesh.get()->normals.push_back(normal);
 	}
-	// Todo: iterate over all faces and add 1 to index buffer (GL_ELEMENT_ARRAY_BUFFER) everytime an unique
-	// v/vt/vn combination is found :D let's gooo ----------------------
-
-
-
 	// -----------------------------------------------------------------
 
 	// transfer to GPU
@@ -107,7 +151,7 @@ void GraphicsNode::setMesh(const char* objPath)
 	glBufferData(GL_ARRAY_BUFFER, mesh.get()->vertices.size() * sizeof(Vec3), &mesh.get()->vertices[0], GL_STATIC_DRAW);
 	glGenBuffers(1, &mesh.get()->indexID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.get()->indexID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexIndices.size() * sizeof(unsigned int), &vertexIndices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ibuf), &ibuf[0], GL_STATIC_DRAW);
 
 	mesh.get()->addArrayAttribute(3); // vertices
 	mesh.get()->vertexUnbind();
@@ -167,7 +211,7 @@ void GraphicsNode::draw()
 	getTexture().bindTexture();
 	getMesh().vertexArrayBind();
 	//glDrawElements(GL_TRIANGLES, vertices, GL_UNSIGNED_INT, nullptr);
-	glDrawElements(GL_TRIANGLES, mesh.get()->uvs.size(), GL_UNSIGNED_INT, nullptr);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 	getMesh().vertexArrayUnbind();
 	getTexture().unbindTexture();
 	getShader().quitProgram();

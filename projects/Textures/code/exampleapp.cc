@@ -138,7 +138,7 @@ ExampleApp::Open()
 		mr.vertexUnbind();
 		mr.indexUnbind();
 
-		tr.loadFromFile("flower_texture.png");
+		tr.loadFromFile("projects/Textures/flower_texture.png");
 
 		return true;
 	}

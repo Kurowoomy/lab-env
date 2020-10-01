@@ -4,6 +4,7 @@
 //------------------------------------------------------------------------------
 #include "config.h"
 #include "exampleapp.h"
+
 #include <cstring>
 
 using namespace Display;
@@ -38,16 +39,16 @@ ExampleApp::Open()
 	{
 			if (action == 1 || action == 2) { // 1 = pressed, 2 = holding, 0 = released 
 				switch (key) {
-				case 263: // left
+				case GLFW_KEY_LEFT: // left
 					gn.setTransform(Matrix4::translationMatrix(moveSpeed, 0, 0) * gn.getTransform());
 					break;
-				case 262: // right
+				case GLFW_KEY_RIGHT: // right
 					gn.setTransform(Matrix4::translationMatrix(-moveSpeed, 0, 0) * gn.getTransform());
 					break;
-				case 265: // up
+				case GLFW_KEY_UP: // up
 					gn.setTransform(Matrix4::translationMatrix(0, -moveSpeed, 0) * gn.getTransform());
 					break;
-				case 264: // down
+				case GLFW_KEY_DOWN: // down
 					gn.setTransform(Matrix4::translationMatrix(0, moveSpeed, 0) * gn.getTransform());
 					break;
 				default:
@@ -103,11 +104,10 @@ ExampleApp::Open()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 		// create a graphics node object
-		// TODO: använd setMesh(objPath) istället för att generera en egen mesh
 		gn.setMesh(MeshResource::Shape::CUBE, { 3, 2 }, 1);	
-		gn.setShader("C:/Users/Kurowoomy/Documents/Universitetet/S0006E Programmering av realtidsgrafik/lab-env/engine/render/ShaderVertex.txt", 
-			"C:/Users/Kurowoomy/Documents/Universitetet/S0006E Programmering av realtidsgrafik/lab-env/engine/render/ShaderFragment.txt");
-		gn.setTexture("flower_texture.png");
+		gn.setShader("engine/render/ShaderVertex.txt", 
+			"engine/render/ShaderFragment.txt");
+		gn.setTexture("projects/ShaderResources/flower_texture.png");
 		
 		return true;
 	}
@@ -145,7 +145,6 @@ ExampleApp::Run()
 
 		// do stuff
 		//------- Automatic rotation and translation ------------------------------
-		// TODO: flytta kuben till mitten, rotera, flytta tillbaka kuben! o: Det är det jag missat!
 		/*gn.setTransform(Matrix4::translationMatrix(0, 0, 0) * Matrix4::rotationY(modelRadians * rotationSpeed) *
 			 Matrix4::scaleMatrix(1) * gn.getTransform());*/
 		//---------------------------------------------------------------

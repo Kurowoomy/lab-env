@@ -12,3 +12,5 @@ SOURCE_GROUP("ObjectFiles" FILES ${files_example})
 ADD_EXECUTABLE(ObjectFiles ${files_example})
 TARGET_LINK_LIBRARIES(ObjectFiles core render)
 ADD_DEPENDENCIES(ObjectFiles core render)
+
+SET_PROPERTY(TARGET ObjectFiles PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")

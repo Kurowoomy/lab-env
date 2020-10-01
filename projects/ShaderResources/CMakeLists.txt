@@ -12,3 +12,5 @@ SOURCE_GROUP("ShaderResources" FILES ${files_example})
 ADD_EXECUTABLE(ShaderResources ${files_example})
 TARGET_LINK_LIBRARIES(ShaderResources core render)
 ADD_DEPENDENCIES(ShaderResources core render)
+
+SET_PROPERTY(TARGET ShaderResources PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")

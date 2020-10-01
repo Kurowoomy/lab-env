@@ -104,10 +104,10 @@ ExampleApp::Open()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 		// create a graphics node object
-		gn.setMesh("C:/Users/Kurowoomy/Documents/Universitetet/S0006E Programmering av realtidsgrafik/lab-env/engine/render/cube.obj");
-		gn.setShader("C:/Users/Kurowoomy/Documents/Universitetet/S0006E Programmering av realtidsgrafik/lab-env/engine/render/ShaderVertex.txt", 
-			"C:/Users/Kurowoomy/Documents/Universitetet/S0006E Programmering av realtidsgrafik/lab-env/engine/render/ShaderFragment.txt");
-		gn.setTexture("flower_texture.png");
+		gn.setMesh("engine/render/cube.obj");
+		gn.setShader("engine/render/ShaderVertex.txt", 
+			"engine/render/ShaderFragment.txt");
+		gn.setTexture("projects/ObjectFiles/flower_texture.png");
 		
 		return true;
 	}

@@ -85,8 +85,8 @@ void GraphicsNode::setMesh(const char* objPath)
 	unsigned int ibuf[] =
 	{
 		0, 1, 2,
-		3, 4, 5,
-		6, 7, 8,
+		3, 4, 5
+		/*6, 7, 8,
 		9, 10, 11,
 		12, 13, 14,
 		0, 15, 1,
@@ -95,7 +95,7 @@ void GraphicsNode::setMesh(const char* objPath)
 		9, 18, 10,
 		12, 19, 13,
 		0, 0, 0,
-		0, 0, 0
+		0, 0, 0*/
 	};
 	std::vector<Vec3> uniqueV, uniqueN;
 	std::vector<Vec2> uniqueU;
@@ -146,19 +146,21 @@ void GraphicsNode::setMesh(const char* objPath)
 
 	// transfer to GPU
 	mesh.get()->genVertexArray();
+
 	glGenBuffers(1, &mesh.get()->vertexID);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.get()->vertexID);
 	glBufferData(GL_ARRAY_BUFFER, mesh.get()->vertices.size() * sizeof(Vec3), &mesh.get()->vertices[0], GL_STATIC_DRAW);
-	glGenBuffers(1, &mesh.get()->indexID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.get()->indexID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ibuf), &ibuf[0], GL_STATIC_DRAW);
-
 	mesh.get()->addArrayAttribute(3); // vertices
 	mesh.get()->vertexUnbind();
+
 	glGenBuffers(1, &mesh.get()->textureID);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.get()->textureID);
 	glBufferData(GL_ARRAY_BUFFER, mesh.get()->uvs.size() * sizeof(Vec3), &mesh.get()->uvs[0], GL_STATIC_DRAW);
 	mesh.get()->addArrayAttribute(2); // uvs
+
+	glGenBuffers(1, &mesh.get()->indexID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.get()->indexID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ibuf), &ibuf[0], GL_STATIC_DRAW);
 	mesh.get()->vertexUnbind();
 
 	mesh.get()->vertexArrayUnbind();

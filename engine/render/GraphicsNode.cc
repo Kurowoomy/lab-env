@@ -39,24 +39,30 @@ void GraphicsNode::setMesh(const char* objPath)
 		printf("Impossible to open the obj file !\n");
 	}
 	while (true) {
-		char firstWord[16];
+		char firstWord[128] = { 0 };
 		int readBytes = fscanf(objFile, "%s", firstWord);
 		if (readBytes == EOF) {
 			break;
 		}
 		if (strcmp(firstWord, "v") == 0) {
 			Vec3 vertex;
-			fscanf(objFile, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+			if (!fscanf(objFile, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z)) {
+				printf("Can't read v line\n");
+			}
 			tempVertices.push_back(vertex);
 		}
 		else if (strcmp(firstWord, "vt") == 0) {
 			Vec2 uv;
-			fscanf(objFile, "%f %f\n", &uv.x, &uv.y);
+			if (!fscanf(objFile, "%f %f\n", &uv.x, &uv.y)) {
+				printf("Can't read vt line\n");
+			}
 			tempUvs.push_back(uv);
 		}
 		else if (strcmp(firstWord, "vn") == 0) {
 			Vec3 normal;
-			fscanf(objFile, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
+			if (!fscanf(objFile, "%f %f %f\n", &normal.x, &normal.y, &normal.z)) {
+				printf("Can't read vn line\n");
+			}
 			tempNormals.push_back(normal);
 		}
 		else if (strcmp(firstWord, "f") == 0) {
@@ -77,55 +83,6 @@ void GraphicsNode::setMesh(const char* objPath)
 		}
 	}
 
-	
-	// Todo: iterate over all faces and add 1 to index buffer (GL_ELEMENT_ARRAY_BUFFER) everytime an unique
-	// v/vt/vn combination is found :D let's gooo ----------------------
-
-	std::vector<unsigned int> indexBuffer;
-	unsigned int ibuf[] =
-	{
-		0, 1, 2,
-		3, 4, 5
-		/*6, 7, 8,
-		9, 10, 11,
-		12, 13, 14,
-		0, 15, 1,
-		3, 16, 4,
-		6, 17, 7,
-		9, 18, 10,
-		12, 19, 13,
-		0, 0, 0,
-		0, 0, 0*/
-	};
-	std::vector<Vec3> uniqueV, uniqueN;
-	std::vector<Vec2> uniqueU;
-	// for each index from obj file:
-	for (int i = 0; i < vertexIndices.size(); i++) {
-
-		unsigned short index;
-		//bool found = getSimilarVertexIndex(in_vertices[i], in_uvs[i], in_normals[i], out_vertices, out_uvs, out_normals, index);
-
-		//// check all uniqueV.. if they match
-		//for (int j = 0; j < uniqueV.size(); j++) {
-		//	if (fabs(tempVertices[i].x - uniqueV[j].x) < 0.01f &&
-		//		fabs(tempVertices[i].y - uniqueV[j].y) < 0.01f &&
-		//		fabs(tempVertices[i].z - uniqueV[j].z) < 0.01f &&
-		//		fabs(tempUvs[i].x - uniqueU[j].x) < 0.01f &&
-		//		fabs(tempUvs[i].y - uniqueU[j].y) < 0.01f &&
-		//		fabs(tempNormals[i].x - uniqueN[j].x) < 0.01f &&
-		//		fabs(tempNormals[i].y - uniqueN[j].y) < 0.01f &&
-		//		fabs(tempNormals[i].z - uniqueN[j].z) < 0.01f) {
-		//		// if all is alike, only add j to indexBuffer (push_back(j))
-		//		indexBuffer.push_back(j);
-		//	}
-		//}
-		//// if no match, uniqueV.push_back(vertexIndices[i]) and indexBuffer.push_back(uniqueV.size() - 1)
-		//uniqueV.push_back(tempVertices[i]);
-		//uniqueU.push_back(tempUvs[i]);
-		//uniqueN.push_back(tempNormals[i]);
-		//indexBuffer.push_back(uniqueV.size() - 1);
-	}
-
 	// make mesh
 	mesh = std::make_shared<MeshResource>();
 	for (unsigned int i = 0; i < vertexIndices.size(); i++) {
@@ -142,6 +99,10 @@ void GraphicsNode::setMesh(const char* objPath)
 		Vec3 normal = tempNormals[normalIndex - 1];
 		mesh.get()->normals.push_back(normal);
 	}
+	std::vector<unsigned int> indexBuffer;
+	for (int i = 0; i < vertexIndices.size(); i++) {
+		indexBuffer.push_back(i);
+	}
 	// -----------------------------------------------------------------
 
 	// transfer to GPU
@@ -150,18 +111,18 @@ void GraphicsNode::setMesh(const char* objPath)
 	glGenBuffers(1, &mesh.get()->vertexID);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.get()->vertexID);
 	glBufferData(GL_ARRAY_BUFFER, mesh.get()->vertices.size() * sizeof(Vec3), &mesh.get()->vertices[0], GL_STATIC_DRAW);
-	mesh.get()->addArrayAttribute(3); // vertices
+	mesh.get()->addArrayAttribute(3, 3); // vertices
 	mesh.get()->vertexUnbind();
 
-	glGenBuffers(1, &mesh.get()->textureID);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.get()->textureID);
-	glBufferData(GL_ARRAY_BUFFER, mesh.get()->uvs.size() * sizeof(Vec3), &mesh.get()->uvs[0], GL_STATIC_DRAW);
-	mesh.get()->addArrayAttribute(2); // uvs
+	//glGenBuffers(1, &mesh.get()->textureID);
+	//glBindBuffer(GL_ARRAY_BUFFER, mesh.get()->textureID);
+	//glBufferData(GL_ARRAY_BUFFER, mesh.get()->uvs.size() * sizeof(Vec3), &mesh.get()->uvs[0], GL_STATIC_DRAW);
+	//mesh.get()->addArrayAttribute(2, 2); // uvs
+	//mesh.get()->vertexUnbind();
 
 	glGenBuffers(1, &mesh.get()->indexID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.get()->indexID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ibuf), &ibuf[0], GL_STATIC_DRAW);
-	mesh.get()->vertexUnbind();
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(unsigned int), &indexBuffer[0], GL_STATIC_DRAW);
 
 	mesh.get()->vertexArrayUnbind();
 	mesh.get()->indexUnbind();
@@ -210,18 +171,18 @@ Matrix4& GraphicsNode::getTransform()
 
 void GraphicsNode::draw()
 {
-	getTexture().bindTexture();
+	//getTexture().bindTexture();
 	getMesh().vertexArrayBind();
 	//glDrawElements(GL_TRIANGLES, vertices, GL_UNSIGNED_INT, nullptr);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+	glDrawElements(GL_TRIANGLES, mesh.get()->vertices.size(), GL_UNSIGNED_INT, nullptr);
 	getMesh().vertexArrayUnbind();
-	getTexture().unbindTexture();
+	//getTexture().unbindTexture();
 	getShader().quitProgram();
 }
 
 void GraphicsNode::destroyAll()
 {
 	getShader().destroy();
-	getTexture().destroyID();
+	//getTexture().destroyID();
 	getMesh().destroyID();
 }

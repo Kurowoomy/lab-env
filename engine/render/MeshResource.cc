@@ -149,6 +149,12 @@ void MeshResource::addArrayAttribute(GLuint elementsPerVertex) {
 	offset += elementsPerVertex * sizeof(GLfloat);
 	layouts++;
 }
+void MeshResource::addArrayAttribute(GLuint elementsPerVertex, GLuint totalSize) {
+	glEnableVertexAttribArray(layouts);
+	glVertexAttribPointer(layouts, elementsPerVertex, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * totalSize, (const void*)offset);
+	offset += elementsPerVertex * sizeof(GLfloat);
+	layouts++;
+}
 
 void MeshResource::destroyID()
 {

@@ -142,9 +142,9 @@ ExampleApp::Open()
 
 		// setup vba
 		mr.genVertexArray();
-		mr.generateSquare(1);
+		mr.generateCube(1);
 
-		mr.addArrayAttribute(3); // x, y, z for each vertex
+		mr.addArrayAttribute(3, 5); // x, y, z for each vertex
 
 		mr.vertexArrayUnbind();
 		mr.vertexUnbind();
@@ -167,8 +167,6 @@ ExampleApp::Run()
 	float radians = 0, dx = 0.006, scalar = 0.5, maxDistance = 0.75;
 	int transformationLocation = glGetUniformLocation(program, "transformationMatrix");
 	
-	glUseProgram(this->program);
-	mr.vertexArrayBind();
 	while (this->window->IsOpen())
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -186,14 +184,18 @@ ExampleApp::Run()
 		// send updated data to shader
 		transformationMatrix = Matrix4::translationMatrix(transVec.x, transVec.y, transVec.z)
 			* Matrix4::rotationZ(radians) * Matrix4::scaleMatrix(scalar);
+		
+		glUseProgram(this->program);
+		
 		glUniformMatrix4fv(transformationLocation, 1, GL_TRUE, &transformationMatrix[0]);
 
+		mr.vertexArrayBind();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		mr.vertexArrayUnbind();
+		glUseProgram(0);
 
 		this->window->SwapBuffers();
 	}
-	mr.vertexArrayUnbind();
-	glUseProgram(0);
 }
 
 } // namespace Example

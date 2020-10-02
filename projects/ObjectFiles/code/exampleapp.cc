@@ -39,16 +39,16 @@ ExampleApp::Open()
 			if (action == 1 || action == 2) { // 1 = pressed, 2 = holding, 0 = released 
 				switch (key) {
 				case 263: // left
-					gn.setTransform(Matrix4::translationMatrix(moveSpeed, 0, 0) * gn.getTransform());
-					break;
-				case 262: // right
 					gn.setTransform(Matrix4::translationMatrix(-moveSpeed, 0, 0) * gn.getTransform());
 					break;
+				case 262: // right
+					gn.setTransform(Matrix4::translationMatrix(moveSpeed, 0, 0) * gn.getTransform());
+					break;
 				case 265: // up
-					gn.setTransform(Matrix4::translationMatrix(0, -moveSpeed, 0) * gn.getTransform());
+					gn.setTransform(Matrix4::translationMatrix(0, moveSpeed, 0) * gn.getTransform());
 					break;
 				case 264: // down
-					gn.setTransform(Matrix4::translationMatrix(0, moveSpeed, 0) * gn.getTransform());
+					gn.setTransform(Matrix4::translationMatrix(0, -moveSpeed, 0) * gn.getTransform());
 					break;
 				default:
 					this->window->Close();
@@ -77,8 +77,8 @@ ExampleApp::Open()
 					Matrix4 invTranslation = Matrix4::translationMatrix(
 						-gn.getTransform()[3], -gn.getTransform()[7], -gn.getTransform()[11]);
 
-					gn.setTransform(translation * Matrix4::rotationY(-(x - lastMoveX) * rotationSpeed)
-						* Matrix4::rotationX(-(y - lastMoveY) * rotationSpeed) * invTranslation * gn.getTransform());
+					gn.setTransform(translation * Matrix4::rotationY((x - lastMoveX) * rotationSpeed)
+						* Matrix4::rotationX((y - lastMoveY) * rotationSpeed) * invTranslation * gn.getTransform());
 
 					lastRadX += x - lastMoveX;
 					lastRadY += y - lastMoveY;
@@ -104,10 +104,10 @@ ExampleApp::Open()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 		// create a graphics node object
-		gn.setMesh("engine/render/cube.obj");
+		gn.setMesh("engine/render/plant.obj");
 		gn.setShader("engine/render/ShaderVertex.txt", 
 			"engine/render/ShaderFragment.txt");
-		gn.setTexture("projects/ObjectFiles/flower_texture.png");
+		//gn.setTexture("projects/ObjectFiles/flower_texture.png");
 		
 		return true;
 	}
@@ -126,12 +126,12 @@ ExampleApp::Run()
 	Matrix4 mvp;
 	float modelRadians = 0, scalar = 1; // modelMatrix values
 	float yRadians = 0; //viewMatrix values
-	Vec4 eye(0, 0, 3), target(0, 0, 0), up(0, 1, 0); // viewMatrix vectors
+	Vec4 eye(0, 0, 2000), target(0, 0, 0), up(0, -1, 0); // viewMatrix vectors
 
 	// create projection matrix
 	int width, height;
 	this->window->GetSize(width, height);
-	projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 100.0f);
+	projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 3000.0f);
 	
 	// create shader location once before loop
 	gn.getShader().makeUniform("transformationMatrix");

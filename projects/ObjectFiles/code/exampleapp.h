@@ -45,7 +45,7 @@ private:
 	GraphicsNode gn;
 	// for moving, rotating with input
 	bool hasPressedLeft = false, isRotating = false, hasPressedKey = false;
-	float rotationSpeed = 0.01, moveSpeed = 0.1;
+	float rotationSpeed = 0.01, moveSpeed = 100;
 	float64 lastRadX = -1, lastRadY, lastMoveX, lastMoveY;
 };
 } // namespace Example

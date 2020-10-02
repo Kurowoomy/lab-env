@@ -41,6 +41,7 @@ public:
 	/// Adds a new float layout for vertex shader and increments layouts by one. 
 	/// Uses stride, updates offset used for next layout.
 	void addArrayAttribute(GLuint elementsPerVertex);
+	void addArrayAttribute(GLuint elementsPerVertex, GLuint totalSize);
 
 	void destroyID();
 	~MeshResource();

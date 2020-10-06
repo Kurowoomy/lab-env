@@ -104,7 +104,7 @@ ExampleApp::Open()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 		// create a graphics node object
-		gn.setMesh("engine/render/plant.obj");
+		gn.setMesh("engine/render/dragon.obj");
 		gn.setShader("engine/render/ShaderVertex.txt", 
 			"engine/render/ShaderFragment.txt");
 		//gn.setTexture("projects/ObjectFiles/flower_texture.png");
@@ -126,7 +126,7 @@ ExampleApp::Run()
 	Matrix4 mvp;
 	float modelRadians = 0, scalar = 1; // modelMatrix values
 	float yRadians = 0; //viewMatrix values
-	Vec4 eye(0, 0, 2000), target(0, 0, 0), up(0, -1, 0); // viewMatrix vectors
+	Vec4 eye(0, 0, 20), target(0, 0, 0), up(0, 1, 0); // viewMatrix vectors
 
 	// create projection matrix
 	int width, height;
@@ -134,7 +134,11 @@ ExampleApp::Run()
 	projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 3000.0f);
 	
 	// create shader location once before loop
-	gn.getShader().makeUniform("transformationMatrix");
+	gn.getShader().makeUniform("model");
+	gn.getShader().makeUniform("view");
+	gn.getShader().makeUniform("projection");
+	gn.getShader().makeUniform("lightColor");
+	gn.getShader().makeUniform("lightPos");
 
 	while (this->window->IsOpen())
 	{
@@ -155,7 +159,11 @@ ExampleApp::Run()
 		//---------------------------------------------------------------
 
 		gn.getShader().useProgram();
-		gn.getShader().uploadUniformMatrix4("transformationMatrix", projectionMatrix * viewMatrix * gn.getTransform());
+		gn.getShader().uploadUniformMatrix4("model", gn.getTransform());
+		gn.getShader().uploadUniformMatrix4("view", viewMatrix);
+		gn.getShader().uploadUniformMatrix4("projection", projectionMatrix);
+		gn.getShader().uploadUniformVector3("lightColor", pl.color);
+		gn.getShader().uploadUniformVector3("lightPos", pl.position);
 		gn.draw();
 
 		this->window->SwapBuffers();

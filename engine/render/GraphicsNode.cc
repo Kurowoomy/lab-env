@@ -95,8 +95,7 @@ void GraphicsNode::setMesh(const char* objPath)
 		mesh.get()->uvs.push_back(uv);
 	}
 	for (unsigned int i = 0; i < normalIndices.size(); i++) {
-		unsigned int normalIndex = normalIndices[i];
-		Vec3 normal = tempNormals[normalIndex - 1];
+		Vec3 normal = tempNormals[normalIndices[i] - 1];
 		mesh.get()->normals.push_back(normal);
 	}
 	std::vector<unsigned int> indexBuffer;
@@ -119,6 +118,12 @@ void GraphicsNode::setMesh(const char* objPath)
 	//glBufferData(GL_ARRAY_BUFFER, mesh.get()->uvs.size() * sizeof(Vec3), &mesh.get()->uvs[0], GL_STATIC_DRAW);
 	//mesh.get()->addArrayAttribute(2, 2); // uvs
 	//mesh.get()->vertexUnbind();
+
+	glGenBuffers(1, &mesh.get()->normalID);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.get()->normalID);
+	glBufferData(GL_ARRAY_BUFFER, mesh.get()->normals.size() * sizeof(Vec3), &mesh.get()->normals[0], GL_STATIC_DRAW);
+	mesh.get()->addArrayAttribute(3, 3); // vertices
+	mesh.get()->vertexUnbind();
 
 	glGenBuffers(1, &mesh.get()->indexID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.get()->indexID);

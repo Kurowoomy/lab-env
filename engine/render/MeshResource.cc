@@ -100,7 +100,7 @@ void MeshResource::generateCube(GLfloat size) {
 		// face 5
 		-0.5f * size,	0.5f * size,	-0.5f * size,			// pos 0
 		0, 0,													// uv coordinates pos 0
-		0.5f * size,	0.5f * size,	-0.5f * size,			// pos 1
+		0.5f * size,	2 * size,	-0.5f * size,			// pos 1
 		1, 0,
 		0.5f * size,	0.5f * size,	0.5f * size,			// pos 2
 		1, 1,

@@ -16,7 +16,9 @@ SET(files_render_display
 	ShaderVertex.txt
 	ShaderFragment.txt
 	GraphicsNode.h
-	GraphicsNode.cc)
+	GraphicsNode.cc
+	PointLight.h
+	PointLight.cc)
 SOURCE_GROUP("display" FILES ${files_render_display})
 
 

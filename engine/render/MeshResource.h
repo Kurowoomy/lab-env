@@ -19,6 +19,7 @@ public:
 	std::vector<Vec3> vertices, normals;
 	std::vector<Vec2> uvs;
 	GLuint textureID;
+	GLuint normalID;
 
 	MeshResource();
 

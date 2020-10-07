@@ -94,7 +94,7 @@ void GraphicsNode::setMesh(const char* objPath)
 		uv.y = 1 - uv.y;
 		mesh.get()->uvs.push_back(uv);
 	}
-	for (unsigned int i = 0; i < normalIndices.size(); i++) {
+	for (unsigned int i = 0; i < normalIndices.size(); i++) { // TODO: fix somehow (check the obj file for clues??)
 		Vec3 normal = tempNormals[normalIndices[i] - 1];
 		mesh.get()->normals.push_back(normal);
 	}
@@ -131,6 +131,8 @@ void GraphicsNode::setMesh(const char* objPath)
 
 	mesh.get()->vertexArrayUnbind();
 	mesh.get()->indexUnbind();
+
+	vertices = mesh.get()->vertices.size();
 }
 void GraphicsNode::setTexture(TextureResource& texture)
 {
@@ -178,8 +180,8 @@ void GraphicsNode::draw()
 {
 	//getTexture().bindTexture();
 	getMesh().vertexArrayBind();
-	//glDrawElements(GL_TRIANGLES, vertices, GL_UNSIGNED_INT, nullptr);
-	glDrawElements(GL_TRIANGLES, mesh.get()->vertices.size(), GL_UNSIGNED_INT, nullptr);
+	glDrawElements(GL_TRIANGLES, vertices, GL_UNSIGNED_INT, nullptr);
+	//glDrawElements(GL_TRIANGLES, mesh.get()->vertices.size(), GL_UNSIGNED_INT, nullptr);
 	getMesh().vertexArrayUnbind();
 	//getTexture().unbindTexture();
 	getShader().quitProgram();

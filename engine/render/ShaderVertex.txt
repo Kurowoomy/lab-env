@@ -4,8 +4,8 @@ layout(location=0) in vec3 pos;
 layout(location=1) in vec3 normal;
 
 //out vec2 texCoord;
-out vec3 Normal;
-out vec3 WorldPos;
+layout(location=0) out vec3 Normal;
+layout(location=1) out vec3 WorldPos;
 
 //uniform mat4 transformationMatrix;
 uniform mat4 model;
@@ -14,9 +14,8 @@ uniform mat4 projection;
 
 void main()
 {
-   vec4 worldPos = model * vec4(pos, 1);
-   gl_Position = projection * view * worldPos;
+   gl_Position = projection * view * model * vec4(pos, 1.0);
    //texCoord = uv;
-   Normal = normal;
-   WorldPos = worldPos.xyz;
+   WorldPos = vec3(model * vec4(pos, 1.0));
+   Normal = mat3(transpose(inverse(model))) * normal;
 }

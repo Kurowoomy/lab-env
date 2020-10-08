@@ -105,6 +105,10 @@ void ShaderObject::uploadUniformVector3(std::string name, Vec3 vec3)
 {
 	glUniform3fv(uniformLocation[name], 1, &vec3.x);
 }
+void ShaderObject::uploadUniformFloat(std::string name, float value)
+{
+	glUniform1f(uniformLocation[name], value);
+}
 
 void ShaderObject::useProgram()
 {

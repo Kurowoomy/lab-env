@@ -5,5 +5,5 @@ class PointLight {
 public:
 	Vec3 position = Vec3(0, 0, 10);
 	Vec3 color = Vec3(1, 1, 1);
-	Vec3 intensity = Vec3(1, 0, 0);
+	float intensity = 0.5;
 };

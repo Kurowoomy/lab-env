@@ -180,7 +180,34 @@ void MeshResource::generateCube(GLfloat size) {
 	//{
 	//	//face 1
 	//	0, 0, 1,
-	//	//face 
+	//	0, 0, 1,
+	//	0, 0, 1,
+	//	0, 0, 1,
+	//	//face 2
+	//	-1, 0, 0,
+	//	-1, 0, 0,
+	//	-1, 0, 0,
+	//	-1, 0, 0,
+	//	//face 3
+	//	0, 0, -1,
+	//	0, 0, -1,
+	//	0, 0, -1,
+	//	0, 0, -1,
+	//	//face 4
+	//	1, 0, 0,
+	//	1, 0, 0,
+	//	1, 0, 0,
+	//	1, 0, 0,
+	//	//face 5
+	//	0, 1, 0,
+	//	0, 1, 0,
+	//	0, 1, 0,
+	//	0, 1, 0,
+	//	//face 6
+	//	0, -1, 0,
+	//	0, -1, 0,
+	//	0, -1, 0,
+	//	0, -1, 0
 	//};
 	//glBufferData(GL_ARRAY_BUFFER, sizeof(nbuf), nbuf, GL_STATIC_DRAW);
 	glGenBuffers(1, &indexID);
@@ -216,9 +243,11 @@ void MeshResource::addArrayAttribute(GLuint elementsPerVertex) {
 	layouts++;
 }
 void MeshResource::addArrayAttribute(GLuint elementsPerVertex, GLuint totalSize) {
-	glEnableVertexAttribArray(layouts);
 	glVertexAttribPointer(layouts, elementsPerVertex, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * totalSize, (const void*)offset);
-	offset += elementsPerVertex * sizeof(GLfloat);
+	glEnableVertexAttribArray(layouts);
+	if (totalSize != elementsPerVertex) {
+		offset += elementsPerVertex * sizeof(GLfloat);
+	}
 	layouts++;
 }
 

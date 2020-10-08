@@ -4,8 +4,8 @@ layout(location=0) in vec3 pos;
 layout(location=1) in vec3 normal;
 
 //out vec2 texCoord;
-layout(location=0) out vec3 Normal;
-layout(location=1) out vec3 WorldPos;
+out vec3 Normal;
+out vec3 WorldPos;
 
 //uniform mat4 transformationMatrix;
 uniform mat4 model;

@@ -20,6 +20,7 @@ public:
 	void uploadUniformMatrix4(std::string name, Matrix4 mat4);
 	void uploadUniformVector4(std::string name, Vec4 vec4);
 	void uploadUniformVector3(std::string name, Vec3 vec3);
+	void uploadUniformFloat(std::string name, float value);
 
 	void useProgram();
 	void quitProgram();

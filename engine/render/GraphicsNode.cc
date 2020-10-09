@@ -94,7 +94,7 @@ void GraphicsNode::setMesh(const char* objPath)
 		uv.y = 1 - uv.y;
 		mesh.get()->uvs.push_back(uv);
 	}
-	for (unsigned int i = 0; i < normalIndices.size(); i++) { // TODO: fix somehow (check the obj file for clues??)
+	for (unsigned int i = 0; i < normalIndices.size(); i++) {
 		Vec3 normal = tempNormals[normalIndices[i] - 1];
 		mesh.get()->normals.push_back(normal);
 	}

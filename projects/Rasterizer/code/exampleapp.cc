@@ -100,16 +100,20 @@ ExampleApp::Open()
 
 	if (this->window->Open())
 	{
+		int width, height;
+		this->window->GetSize(width, height);
+		renderer.setFramebuffer(width, height);
+
 		// set clear color to gray
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
+		
 		// create a graphics node object
 		gn.setMesh("engine/render/cube.obj");
 		//gn.setMesh(MeshResource::Shape::CUBE, { 3, 3 }, 1);
 		gn.setShader("engine/render/ShaderVertex.txt", 
 			"engine/render/ShaderFragment.txt");
 		//gn.setTexture("projects/ObjectFiles/flower_texture.png");
-		
+
 		return true;
 	}
 	return false;
@@ -135,6 +139,7 @@ ExampleApp::Run()
 	this->window->GetSize(width, height);
 	projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 3000.0f);
 	
+
 	// create shader location once before loop
 	gn.getShader().makeUniform("model");
 	gn.getShader().makeUniform("view");
@@ -146,6 +151,7 @@ ExampleApp::Run()
 
 	while (this->window->IsOpen())
 	{
+		//renderer.bindFramebuffer();
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
@@ -170,9 +176,11 @@ ExampleApp::Run()
 		gn.getShader().uploadUniformVector3("lightPos", pl.position);
 		gn.getShader().uploadUniformFloat("lightIntensity", pl.intensity);
 		gn.getShader().uploadUniformVector3("cameraPos", cameraPos);
+		
 		gn.draw();
 
 		this->window->SwapBuffers();
+		//renderer.unbindFramebuffer();
 	}
 	gn.destroyAll();
 }

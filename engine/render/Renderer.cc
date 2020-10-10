@@ -84,13 +84,38 @@ void* Renderer::addVertexIndexBuffer(const char* objPath) {
 }
 
 void Renderer::setFramebuffer(unsigned int width, unsigned int height) {
+	glGenTextures(1, &colorID);
+	glBindTexture(GL_TEXTURE_2D, colorID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glGenTextures(1, &depthID);
+	glBindTexture(GL_TEXTURE_2D, depthID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
 	glGenFramebuffers(1, &framebufferID);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebufferID);
+	glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorID, 0);
+	glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthID, 0);
 
+	if (glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		printf("D: Framebuffer incomplete.");
+	}
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 unsigned int Renderer::getFramebufferWidth() {
 	return framebuffer.width;
 }
 unsigned int Renderer::getFramebufferHeight() {
 	return framebuffer.height;
+}
+void Renderer::bindFramebuffer() {
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebufferID);
+}
+void Renderer::unbindFramebuffer() {
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+}
+
+void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
+{
+
 }

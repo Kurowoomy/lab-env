@@ -15,6 +15,7 @@
 //#include "render/TextureResource.h"
 #include "render/GraphicsNode.h"
 #include "render/PointLight.h"
+#include "render/Renderer.h"
 
 namespace Example
 {
@@ -45,6 +46,7 @@ private:
 	// my own members
 	GraphicsNode gn;
 	PointLight pl;
+	Renderer renderer;
 	// for moving, rotating with input
 	bool hasPressedLeft = false, isRotating = false, hasPressedKey = false;
 	float rotationSpeed = 0.01, moveSpeed = 1;

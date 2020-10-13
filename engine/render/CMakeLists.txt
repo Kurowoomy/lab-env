@@ -20,7 +20,9 @@ SET(files_render_display
 	PointLight.h
 	PointLight.cc
 	Renderer.h
-	Renderer.cc)
+	Renderer.cc
+	fs.txt
+	vs.txt)
 SOURCE_GROUP("display" FILES ${files_render_display})
 
 

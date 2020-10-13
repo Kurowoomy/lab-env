@@ -59,120 +59,120 @@ void MeshResource::generateSquare(GLfloat size) {
 void MeshResource::generateCube(GLfloat size) {
 	glGenBuffers(1, &vertexID);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexID);
-	//GLfloat buf[] =
-	//{ // "rendera 6 olika calls" precis som jag tänker/gjort :D
-	//	// face 1
-	//	-0.5f * size,	0.5f * size,	0.5f * size,			// pos 0
-	//	0, 0,													// uv coordinates pos 0
-	//	0.5f * size,	0.5f * size,	0.5f * size,			// pos 1
-	//	1, 0,
-	//	0.5f * size,	-0.5f * size,	0.5f * size,			// pos 2
-	//	1, 1,
-	//	-0.5f * size,	-0.5f * size,	0.5f * size,
-	//	0, 1,
-	//	// face 2
-	//	-0.5f * size,	0.5f * size,	-0.5f * size,			// pos 0
-	//	0, 0,													// uv coordinates pos 0
-	//	-0.5f * size,	0.5f * size,	0.5f * size,			// pos 1
-	//	1, 0,
-	//	-0.5f * size,	-0.5f * size,	0.5f * size,			// pos 2
-	//	1, 1,
-	//	-0.5f * size,	-0.5f * size,	-0.5f * size,
-	//	0, 1,
-	//	// face 3
-	//	0.5f * size,	0.5f * size,	-0.5f * size,			// pos 0
-	//	0, 0,													// uv coordinates pos 0
-	//	-0.5f * size,	0.5f * size,	-0.5f * size,			// pos 1
-	//	1, 0,
-	//	-0.5f * size,	-0.5f * size,	-0.5f * size,			// pos 2
-	//	1, 1,
-	//	0.5f * size,	-0.5f * size,	-0.5f * size,
-	//	0, 1,
-	//	// face 4
-	//	0.5f * size,	0.5f * size,	0.5f * size,			// pos 0
-	//	0, 0,													// uv coordinates pos 0
-	//	0.5f * size,	0.5f * size,	-0.5f * size,			// pos 1
-	//	1, 0,
-	//	0.5f * size,	-0.5f * size,	-0.5f * size,			// pos 2
-	//	1, 1,
-	//	0.5f * size,	-0.5f * size,	0.5f * size,
-	//	0, 1,
-	//	// face 5
-	//	-0.5f * size,	0.5f * size,	-0.5f * size,			// pos 0
-	//	0, 0,													// uv coordinates pos 0
-	//	0.5f * size,	2 * size,	-0.5f * size,			// pos 1
-	//	1, 0,
-	//	0.5f * size,	0.5f * size,	0.5f * size,			// pos 2
-	//	1, 1,
-	//	-0.5f * size,	0.5f * size,	0.5f * size,
-	//	0, 1,
-	//	// face 6
-	//	0.5f * size,	-0.5f * size,	-0.5f * size,			// pos 0
-	//	0, 0,													// uv coordinates pos 0
-	//	-0.5f * size,	-0.5f * size,	-0.5f * size,			// pos 1
-	//	1, 0,
-	//	-0.5f * size,	-0.5f * size,	0.5f * size,			// pos 2
-	//	1, 1,
-	//	0.5f * size,	-0.5f * size,	0.5f * size,
-	//	0, 1
-	//};
 	GLfloat buf[] =
 	{ // "rendera 6 olika calls" precis som jag tänker/gjort :D
 		// face 1
-		-0.5f * size,	0.5f * size,	0.5f * size,			// uv coordinates pos 0
-		0, 0, 1,
-		0.5f * size,	0.5f * size,	0.5f * size,	
-		0, 0, 1,
-		0.5f * size,	-0.5f * size,	0.5f * size,	
-		0, 0, 1,
+		-0.5f * size,	0.5f * size,	0.5f * size,			// pos 0
+		0, 0,													// uv coordinates pos 0
+		0.5f * size,	0.5f * size,	0.5f * size,			// pos 1
+		1, 0,
+		0.5f * size,	-0.5f * size,	0.5f * size,			// pos 2
+		1, 1,
 		-0.5f * size,	-0.5f * size,	0.5f * size,
-		0, 0, 1,
+		0, 1,
 		// face 2
 		-0.5f * size,	0.5f * size,	-0.5f * size,			// pos 0
-		-1, 0, 0,
+		0, 0,													// uv coordinates pos 0
 		-0.5f * size,	0.5f * size,	0.5f * size,			// pos 1
-		-1, 0, 0,
+		1, 0,
 		-0.5f * size,	-0.5f * size,	0.5f * size,			// pos 2
-		-1, 0, 0,
+		1, 1,
 		-0.5f * size,	-0.5f * size,	-0.5f * size,
-		-1, 0, 0,
+		0, 1,
 		// face 3
 		0.5f * size,	0.5f * size,	-0.5f * size,			// pos 0
-		0, 0, -1,
+		0, 0,													// uv coordinates pos 0
 		-0.5f * size,	0.5f * size,	-0.5f * size,			// pos 1
-		0, 0, -1,
+		1, 0,
 		-0.5f * size,	-0.5f * size,	-0.5f * size,			// pos 2
-		0, 0, -1,
+		1, 1,
 		0.5f * size,	-0.5f * size,	-0.5f * size,
-		0, 0, -1,
+		0, 1,
 		// face 4
 		0.5f * size,	0.5f * size,	0.5f * size,			// pos 0
-		1, 0, 0,
+		0, 0,													// uv coordinates pos 0
 		0.5f * size,	0.5f * size,	-0.5f * size,			// pos 1
-		1, 0, 0,
+		1, 0,
 		0.5f * size,	-0.5f * size,	-0.5f * size,			// pos 2
-		1, 0, 0,
+		1, 1,
 		0.5f * size,	-0.5f * size,	0.5f * size,
-		1, 0, 0,
+		0, 1,
 		// face 5
 		-0.5f * size,	0.5f * size,	-0.5f * size,			// pos 0
-		0, 1, 0,
-		0.5f * size,	0.5 * size,	-0.5f * size,			// pos 1
-		0, 1, 0,
+		0, 0,													// uv coordinates pos 0
+		0.5f * size,	2 * size,	-0.5f * size,			// pos 1
+		1, 0,
 		0.5f * size,	0.5f * size,	0.5f * size,			// pos 2
-		0, 1, 0,
+		1, 1,
 		-0.5f * size,	0.5f * size,	0.5f * size,
-		0, 1, 0,
+		0, 1,
 		// face 6
 		0.5f * size,	-0.5f * size,	-0.5f * size,			// pos 0
-		0, -1, 0,
+		0, 0,													// uv coordinates pos 0
 		-0.5f * size,	-0.5f * size,	-0.5f * size,			// pos 1
-		0, -1, 0,
+		1, 0,
 		-0.5f * size,	-0.5f * size,	0.5f * size,			// pos 2
-		0, -1, 0,
+		1, 1,
 		0.5f * size,	-0.5f * size,	0.5f * size,
-		0, -1, 0
+		0, 1
 	};
+	//GLfloat buf[] =
+	//{ // "rendera 6 olika calls" precis som jag tänker/gjort :D
+	//	// face 1
+	//	-0.5f * size,	0.5f * size,	0.5f * size,			// uv coordinates pos 0
+	//	0, 0, 1,
+	//	0.5f * size,	0.5f * size,	0.5f * size,	
+	//	0, 0, 1,
+	//	0.5f * size,	-0.5f * size,	0.5f * size,	
+	//	0, 0, 1,
+	//	-0.5f * size,	-0.5f * size,	0.5f * size,
+	//	0, 0, 1,
+	//	// face 2
+	//	-0.5f * size,	0.5f * size,	-0.5f * size,			// pos 0
+	//	-1, 0, 0,
+	//	-0.5f * size,	0.5f * size,	0.5f * size,			// pos 1
+	//	-1, 0, 0,
+	//	-0.5f * size,	-0.5f * size,	0.5f * size,			// pos 2
+	//	-1, 0, 0,
+	//	-0.5f * size,	-0.5f * size,	-0.5f * size,
+	//	-1, 0, 0,
+	//	// face 3
+	//	0.5f * size,	0.5f * size,	-0.5f * size,			// pos 0
+	//	0, 0, -1,
+	//	-0.5f * size,	0.5f * size,	-0.5f * size,			// pos 1
+	//	0, 0, -1,
+	//	-0.5f * size,	-0.5f * size,	-0.5f * size,			// pos 2
+	//	0, 0, -1,
+	//	0.5f * size,	-0.5f * size,	-0.5f * size,
+	//	0, 0, -1,
+	//	// face 4
+	//	0.5f * size,	0.5f * size,	0.5f * size,			// pos 0
+	//	1, 0, 0,
+	//	0.5f * size,	0.5f * size,	-0.5f * size,			// pos 1
+	//	1, 0, 0,
+	//	0.5f * size,	-0.5f * size,	-0.5f * size,			// pos 2
+	//	1, 0, 0,
+	//	0.5f * size,	-0.5f * size,	0.5f * size,
+	//	1, 0, 0,
+	//	// face 5
+	//	-0.5f * size,	0.5f * size,	-0.5f * size,			// pos 0
+	//	0, 1, 0,
+	//	0.5f * size,	0.5 * size,	-0.5f * size,			// pos 1
+	//	0, 1, 0,
+	//	0.5f * size,	0.5f * size,	0.5f * size,			// pos 2
+	//	0, 1, 0,
+	//	-0.5f * size,	0.5f * size,	0.5f * size,
+	//	0, 1, 0,
+	//	// face 6
+	//	0.5f * size,	-0.5f * size,	-0.5f * size,			// pos 0
+	//	0, -1, 0,
+	//	-0.5f * size,	-0.5f * size,	-0.5f * size,			// pos 1
+	//	0, -1, 0,
+	//	-0.5f * size,	-0.5f * size,	0.5f * size,			// pos 2
+	//	0, -1, 0,
+	//	0.5f * size,	-0.5f * size,	0.5f * size,
+	//	0, -1, 0
+	//};
 	glBufferData(GL_ARRAY_BUFFER, sizeof(buf), buf, GL_STATIC_DRAW);
 	//glGenBuffers(1, &normalID);
 	//glBindBuffer(GL_ARRAY_BUFFER, normalID);
@@ -238,12 +238,12 @@ void MeshResource::generateCube(GLfloat size) {
 
 void MeshResource::addArrayAttribute(GLuint elementsPerVertex) {
 	glEnableVertexAttribArray(layouts);
-	glVertexAttribPointer(layouts, elementsPerVertex, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 6, (const void*) offset);
+	glVertexAttribPointer(layouts, elementsPerVertex, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 5, (const void*) offset);
 	offset += elementsPerVertex * sizeof(GLfloat);
 	layouts++;
 }
 void MeshResource::addArrayAttribute(GLuint elementsPerVertex, GLuint totalSize) {
-	glVertexAttribPointer(layouts, elementsPerVertex, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * totalSize, (const void*)offset);
+	glVertexAttribPointer(layouts, elementsPerVertex, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * totalSize, (const void*) offset);
 	glEnableVertexAttribArray(layouts);
 	if (totalSize != elementsPerVertex) {
 		offset += elementsPerVertex * sizeof(GLfloat);

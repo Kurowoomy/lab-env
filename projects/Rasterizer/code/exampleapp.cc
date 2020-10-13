@@ -104,15 +104,33 @@ ExampleApp::Open()
 		this->window->GetSize(width, height);
 		renderer.setFramebuffer(width, height);
 
+		viewMatrix = Matrix4::viewMatrix(Vec4(0, 0, 10), Vec4(0, 0, 0), Vec4(0, 1, 0)); 
+		projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 3000.0f);
+
+		renderer.setVertexShader([this](Vertex& vertex) 
+		{
+			Vec3 newPos;
+			newPos = projectionMatrix * viewMatrix * renderer.model * Vec4(vertex.pos.x, vertex.pos.y, vertex.pos.z);
+			renderer.worldPos = renderer.model * Vec4(vertex.pos.x, vertex.pos.y, vertex.pos.z);
+			vertex.normal = renderer.model * Vec4(vertex.normal.x, vertex.normal.y, vertex.normal.z);
+			vertex.pos = newPos;
+		});
+		renderer.setFragmentShader([](Vec3 v3) 
+		{
+			// TODO: write cpu fragment shader
+
+			printf("it works? o: %f", v3.x);
+
+		});
+		renderer.draw(renderer.addVertexIndexBuffer("engine/render/cube.obj"));
+
 		// set clear color to gray
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		
-		// create a graphics node object
-		gn.setMesh("engine/render/cube.obj");
-		//gn.setMesh(MeshResource::Shape::CUBE, { 3, 3 }, 1);
-		gn.setShader("engine/render/ShaderVertex.txt", 
-			"engine/render/ShaderFragment.txt");
-		//gn.setTexture("projects/ObjectFiles/flower_texture.png");
+		// create a graphics node object (screen to put texture on)
+		gn.setMesh("engine/render/square.obj");
+		gn.setShader("engine/render/vs.txt", 
+			"engine/render/fs.txt");
 
 		return true;
 	}
@@ -125,62 +143,18 @@ ExampleApp::Open()
 void
 ExampleApp::Run()
 {
-	// animation setup
-	Matrix4 viewMatrix;
-	Matrix4 projectionMatrix;
-	Matrix4 mvp;
-	float modelRadians = 0, scalar = 1; // modelMatrix values
-	float yRadians = 0; //viewMatrix values
-	Vec4 eye(0, 0, 10), target(0, 0, 0), up(0, 1, 0); // viewMatrix vectors
-	Vec3 cameraPos(eye.x, eye.y, eye.z);
-
-	// create projection matrix
-	int width, height;
-	this->window->GetSize(width, height);
-	projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 3000.0f);
-	
-
-	// create shader location once before loop
-	gn.getShader().makeUniform("model");
-	gn.getShader().makeUniform("view");
-	gn.getShader().makeUniform("projection");
-	gn.getShader().makeUniform("lightColor");
-	gn.getShader().makeUniform("lightPos");
-	gn.getShader().makeUniform("lightIntensity");
-	gn.getShader().makeUniform("cameraPos");
-
 	while (this->window->IsOpen())
 	{
-		//renderer.bindFramebuffer();
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		this->window->Update();
 
 		// do stuff
-		//------- Automatic rotation and translation ------------------------------
-		/*gn.setTransform(Matrix4::translationMatrix(0, 0, 0) * Matrix4::rotationY(modelRadians * rotationSpeed)
-			* Matrix4::rotationX(modelRadians * rotationSpeed) * Matrix4::scaleMatrix(scalar) * gn.getTransform());*/
-		//---------------------------------------------------------------
-		
-		//------- Automatic camera rotation while looking at cube position ----------
-		yRadians += 0.02;
-		viewMatrix = Matrix4::viewMatrix(eye, target, up) * Matrix4::rotationY(0); // rotate first, then center camera
-		//---------------------------------------------------------------
 
-		gn.getShader().useProgram();
-		gn.getShader().uploadUniformMatrix4("model", gn.getTransform());
-		gn.getShader().uploadUniformMatrix4("view", viewMatrix);
-		gn.getShader().uploadUniformMatrix4("projection", projectionMatrix);
-		gn.getShader().uploadUniformVector3("lightColor", pl.color);
-		gn.getShader().uploadUniformVector3("lightPos", pl.position);
-		gn.getShader().uploadUniformFloat("lightIntensity", pl.intensity);
-		gn.getShader().uploadUniformVector3("cameraPos", cameraPos);
-		
-		gn.draw();
+
 
 		this->window->SwapBuffers();
-		//renderer.unbindFramebuffer();
 	}
 	gn.destroyAll();
 }

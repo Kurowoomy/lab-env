@@ -27,10 +27,10 @@ void main()
 	//specular lighting
 	vec3 viewDir = normalize(cameraPos - WorldPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), 64);
 	vec3 specular = spec * lightColor * lightIntensity;
 
-
-	vec3 result = (ambient + diffuse + specular) * objectColor;
+	vec3 result = (ambient + diffuse) * objectColor;
+	if (dot(normal, lightDir) > 0) { result = (ambient + diffuse + specular) * objectColor; }
 	Color = vec4(result, 1.0f);
 }

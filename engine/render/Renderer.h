@@ -3,6 +3,7 @@
 #include "render/MeshResource.h"
 #include <fstream>
 #include <functional>
+#include "render/stb_image.h"
 
 
 struct Vertex {
@@ -16,7 +17,7 @@ struct Buffers {
 	std::vector<unsigned int> indexBuffer;
 };
 struct Framebuffer {
-	std::vector<Vec4> colorBuffer;
+	std::vector<std::vector<Vec4>> colorBuffer; // [y][x], [height][width]
 	unsigned int width, height;
 };
 
@@ -30,6 +31,10 @@ public:
 	void(*fragmentShader)(Vec3 v3);
 	Matrix4 model;
 	Vec3 worldPos;
+	unsigned char* textureColor;
+	int textureWidth, textureHeight, channels;
+	std::vector<std::vector<Vec3>> normals; // nya/tomma för varje triangel [y][x]
+	std::vector<std::vector<Vec2>> uvCoords; // nya/tomma för varje triangel [y][x]
 
 	// Reads obj file, saves all data to mesh and buffers in this Renderer object.
 	void* addVertexIndexBuffer(const char* objPath);
@@ -45,4 +50,8 @@ public:
 
 	void setVertexShader(const std::function<void(Vertex)> vertexShader);
 	void setFragmentShader(void(*fragmentShader)(Vec3));
+
+	void loadTextureFile(const char* fileName);
+
+	void bresenham(Vertex p0, Vertex p1);
 };

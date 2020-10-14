@@ -104,16 +104,22 @@ ExampleApp::Open()
 		this->window->GetSize(width, height);
 		renderer.setFramebuffer(width, height);
 
+		renderer.loadTextureFile("engine/render/cube.obj");
+
 		viewMatrix = Matrix4::viewMatrix(Vec4(0, 0, 10), Vec4(0, 0, 0), Vec4(0, 1, 0)); 
 		projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 3000.0f);
 
 		renderer.setVertexShader([this](Vertex& vertex) 
 		{
-			Vec3 newPos;
+			Vec4 newPos, newNormal, newWorldPos, newTexCoords;
 			newPos = projectionMatrix * viewMatrix * renderer.model * Vec4(vertex.pos.x, vertex.pos.y, vertex.pos.z);
-			renderer.worldPos = renderer.model * Vec4(vertex.pos.x, vertex.pos.y, vertex.pos.z);
-			vertex.normal = renderer.model * Vec4(vertex.normal.x, vertex.normal.y, vertex.normal.z);
-			vertex.pos = newPos;
+			newWorldPos = renderer.model * Vec4(vertex.pos.x, vertex.pos.y, vertex.pos.z);
+			renderer.worldPos = Vec3(newWorldPos.x, newWorldPos.y, newWorldPos.z);
+			newNormal = renderer.model * Vec4(vertex.normal.x, vertex.normal.y, vertex.normal.z);
+			vertex.normal = Vec3(newNormal.x, newNormal.y, newNormal.z);
+			newTexCoords = renderer.model * Vec4(vertex.uv.x, vertex.uv.y, 0);
+			vertex.uv = Vec2(newTexCoords.x, newTexCoords.y);
+			vertex.pos = Vec3(newPos.x, newPos.y, newPos.z);
 		});
 		renderer.setFragmentShader([](Vec3 v3) 
 		{
@@ -123,9 +129,6 @@ ExampleApp::Open()
 
 		});
 		renderer.draw(renderer.addVertexIndexBuffer("engine/render/cube.obj"));
-
-		// set clear color to gray
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		
 		// create a graphics node object (screen to put texture on)
 		gn.setMesh("engine/render/square.obj");
@@ -145,6 +148,9 @@ ExampleApp::Run()
 {
 	while (this->window->IsOpen())
 	{
+		// set clear color to gray
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);

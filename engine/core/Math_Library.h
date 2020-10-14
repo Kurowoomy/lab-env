@@ -74,11 +74,6 @@ public:
         y = vec3.y;
         z = vec3.z;
     }
-    void operator=(const Vec4& vec4) {
-        x = vec4.x;
-        y = vec4.y;
-        z = vec4.z;
-    }
     Vec3 operator+(Vec3& vec3) const { //adds this and vec4, returns a new Vec4
         return Vec3(x + vec3.x, y + vec3.y, z + vec3.z);
     }

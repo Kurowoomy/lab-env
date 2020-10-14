@@ -88,6 +88,13 @@ void Renderer::setFramebuffer(unsigned int width, unsigned int height)
 {
 	glGenFramebuffers(1, &framebufferID);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebufferID);
+
+	framebuffer.width = width;
+	framebuffer.height = height;
+	framebuffer.colorBuffer.resize(height);
+	for (int i = 0; i < framebuffer.colorBuffer.size(); i++) {
+		framebuffer.colorBuffer[i].resize(width);
+	}
 	
 	glGenTextures(1, &colorID);
 	glBindTexture(GL_TEXTURE_2D, colorID);
@@ -128,11 +135,32 @@ void Renderer::unbindFramebuffer() {
 
 void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) 
 {
-	vertexShader(v0); //måste kunna använda transformMatrix nånstans ifrån
+	// omvandling av vertiserna så de befinner sig i rätt position i förhållande till worldspace
+	vertexShader(v0);
 	vertexShader(v1);
 	vertexShader(v2);
+	// -----------------------------------------------------------------------------------------
+
+	// Måste först hitta alla pixlar man behöver jobba med för denna triangel-------------------
+	// dvs bresenhams algorithm och scanline
+	normals.clear();
+	uvCoords.clear();
 
 
+
+
+
+	// TODO: använd v0, v1, v2 för att få alla mellanvärden för normals och uvcoords.
+	// dvs interpolera.
+
+
+	// -----------------------------------------------------------------------------------------
+
+	// pixel shader ----------------------------------------------------------------------------
+	// TODO: använd pixelShader-metoden här. och textureColor. [i], [i+1], [i+2], [i+3]  = r, g, b, a.
+	// textureColor = objectColor. 
+
+	// -----------------------------------------------------------------------------------------
 }
 
 void Renderer::draw(void* handle) 
@@ -149,4 +177,13 @@ void Renderer::setVertexShader(const std::function<void(Vertex)> vertexShader) {
 }
 void Renderer::setFragmentShader(void(*fragmentShader)(Vec3)) {
 	this->fragmentShader = fragmentShader;
+}
+
+void Renderer::loadTextureFile(const char* fileName) {
+	textureColor = stbi_load(fileName, &textureWidth, &textureHeight, &channels, 0);
+}
+
+void bresenham(Vertex p0, Vertex p1) 
+{
+
 }

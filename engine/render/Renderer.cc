@@ -141,18 +141,32 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 	vertexShader(v2);
 	// -----------------------------------------------------------------------------------------
 
+	// omvandla till rasteriseringskoordinater -------------------------------------------------
+	// ska vara från 0 till width och 0 till height.
+	convertToRasterSpace(v0);
+	convertToRasterSpace(v1);
+	convertToRasterSpace(v2);
+
+	// -----------------------------------------------------------------------------------------
+
 	// Måste först hitta alla pixlar man behöver jobba med för denna triangel-------------------
-	// dvs bresenhams algorithm och scanline
+	std::vector<Vec2> line0 = createLine(v0.pos.x, v1.pos.x, v0.pos.y, v1.pos.y);
+	std::vector<Vec2> line1 = createLine(v1.pos.x, v2.pos.x, v1.pos.y, v2.pos.y);
+	std::vector<Vec2> line2 = createLine(v2.pos.x, v0.pos.x, v2.pos.y, v0.pos.y);
+
+
+
+	// TODO: interpolera värden via barycentric coordinates? o:
+	// man beräknar barycentric coordinates för varje pixel!
 	normals.clear();
 	uvCoords.clear();
-
-
+	
 
 
 
 	// TODO: använd v0, v1, v2 för att få alla mellanvärden för normals och uvcoords.
 	// dvs interpolera.
-
+	
 
 	// -----------------------------------------------------------------------------------------
 
@@ -172,7 +186,7 @@ void Renderer::draw(void* handle)
 	}
 }
 
-void Renderer::setVertexShader(const std::function<void(Vertex)> vertexShader) {
+void Renderer::setVertexShader(const std::function<void(Vertex&)> vertexShader) {
 	this->vertexShader = vertexShader;
 }
 void Renderer::setFragmentShader(void(*fragmentShader)(Vec3)) {
@@ -183,7 +197,104 @@ void Renderer::loadTextureFile(const char* fileName) {
 	textureColor = stbi_load(fileName, &textureWidth, &textureHeight, &channels, 0);
 }
 
-void bresenham(Vertex p0, Vertex p1) 
+std::vector<Vec2> Renderer::createLine(int x0, int x1, int y0, int y1) 
 {
+	std::vector<Vec2> newLine;
 
+	int dx, dy, x, y, xEnd, yEnd, yFault, xFault;
+	dx = x1 - x0;
+	dy = y1 - y0;
+	yFault = 2 * abs(dy) - abs(dx);
+	xFault = 2 * abs(dx) - abs(dy);
+
+	if (abs(dy) <= abs(dx)) // increment x for each pixel
+	{
+		if (dx >= 0) 
+		{
+			// gå från x0 till x1
+			x = x0;
+			y = y0;
+			xEnd = x1;
+		}
+		else 
+		{
+			// gå från x1 till x0
+			x = x1;
+			y = y1;
+			xEnd = x0;
+		}
+
+		// go to the right, x++
+		newLine.push_back(Vec2(x, y));
+		for (int i = 0; x < xEnd; i++) 
+		{
+			x++;
+
+			if (yFault < 0) { // y is still close to the line
+				yFault += 2 * abs(dy);
+			}
+			else // y is too far from the line
+			{
+				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) {
+					y++; // slope goes down
+				}
+				else {
+					y--; // slope goes up
+				}
+				yFault += 2 * (abs(dy) - abs(dx));
+			}
+
+			newLine.push_back(Vec2(x, y));
+		}
+	}
+	else // increment y for each pixel
+	{ 
+		if (dy >= 0) 
+		{
+			// gå från y0 till y1
+			x = x0;
+			y = y0;
+			yEnd = y1;
+		}
+		else 
+		{
+			// gå från y1 till y0
+			x = x1;
+			y = y1;
+			yEnd = y0;
+		}
+
+		// go down, y++
+		newLine.push_back(Vec2(x, y));
+		for (int i = 0; y < yEnd; i++) {
+			y++;
+
+			if (xFault < 0) {
+				xFault += 2 * abs(dx);
+			}
+			else
+			{
+				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) {
+					x++;
+				}
+				else {
+					x--;
+				}
+				xFault += 2 * (abs(dx) - abs(dy));
+			}
+
+			newLine.push_back(Vec2(x, y));
+		}
+	}
+
+	return newLine;
+}
+
+void Renderer::convertToRasterSpace(Vertex& v) 
+{
+	v.pos.x = (v.pos.x + framebuffer.width / 2) / framebuffer.width;
+	v.pos.y = (v.pos.y + framebuffer.height / 2) / framebuffer.height;
+
+	v.pos.x = v.pos.x * framebuffer.width;
+	v.pos.y = (1 - v.pos.y) * framebuffer.height;
 }

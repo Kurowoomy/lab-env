@@ -104,7 +104,7 @@ ExampleApp::Open()
 		this->window->GetSize(width, height);
 		renderer.setFramebuffer(width, height);
 
-		renderer.loadTextureFile("engine/render/cube.obj");
+		renderer.loadTextureFile("engine/render/flower_texture.png");
 
 		viewMatrix = Matrix4::viewMatrix(Vec4(0, 0, 10), Vec4(0, 0, 0), Vec4(0, 1, 0)); 
 		projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 3000.0f);

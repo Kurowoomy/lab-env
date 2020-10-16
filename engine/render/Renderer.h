@@ -27,7 +27,7 @@ public:
 	MeshResource mesh;
 	Framebuffer framebuffer;
 	GLuint framebufferID, colorID, depthID;
-	std::function<void(Vertex)> vertexShader;
+	std::function<void(Vertex&)> vertexShader;
 	void(*fragmentShader)(Vec3 v3);
 	Matrix4 model;
 	Vec3 worldPos;
@@ -48,10 +48,11 @@ public:
 	void rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2);
 	void draw(void* buffers);
 
-	void setVertexShader(const std::function<void(Vertex)> vertexShader);
+	void setVertexShader(const std::function<void(Vertex&)> vertexShader);
 	void setFragmentShader(void(*fragmentShader)(Vec3));
 
 	void loadTextureFile(const char* fileName);
 
-	void bresenham(Vertex p0, Vertex p1);
+	std::vector<Vec2> createLine(int x0, int x1, int y0, int y1);
+	void convertToRasterSpace(Vertex& v);
 };

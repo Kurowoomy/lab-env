@@ -4,6 +4,7 @@
 #include <fstream>
 #include <functional>
 #include "render/stb_image.h"
+#include <algorithm>
 
 
 struct Vertex {
@@ -27,7 +28,7 @@ public:
 	MeshResource mesh;
 	Framebuffer framebuffer;
 	GLuint framebufferID, colorID, depthID;
-	std::function<void(Vertex&)> vertexShader;
+	std::function<Vec4(Vertex&)> vertexShader;
 	void(*fragmentShader)(Vec3 v3);
 	Matrix4 model;
 	Vec3 worldPos;
@@ -35,6 +36,7 @@ public:
 	int textureWidth, textureHeight, channels;
 	std::vector<std::vector<Vec3>> normals; // nya/tomma för varje triangel [y][x]
 	std::vector<std::vector<Vec2>> uvCoords; // nya/tomma för varje triangel [y][x]
+	std::vector<std::vector<int>> pixels;
 
 	// Reads obj file, saves all data to mesh and buffers in this Renderer object.
 	void* addVertexIndexBuffer(const char* objPath);
@@ -48,11 +50,12 @@ public:
 	void rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2);
 	void draw(void* buffers);
 
-	void setVertexShader(const std::function<void(Vertex&)> vertexShader);
+	void setVertexShader(const std::function<Vec4(Vertex&)> vertexShader);
 	void setFragmentShader(void(*fragmentShader)(Vec3));
 
 	void loadTextureFile(const char* fileName);
 
 	std::vector<Vec2> createLine(int x0, int x1, int y0, int y1);
-	void convertToRasterSpace(Vertex& v);
+	Vec3 convertToRasterSpace(Vec4& v);
+	void fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, std::vector<Vec2> line2);
 };

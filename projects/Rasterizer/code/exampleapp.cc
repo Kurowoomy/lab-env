@@ -120,6 +120,8 @@ ExampleApp::Open()
 			newTexCoords = renderer.model * Vec4(vertex.uv.x, vertex.uv.y, 0);
 			vertex.uv = Vec2(newTexCoords.x, newTexCoords.y);
 			vertex.pos = Vec3(newPos.x, newPos.y, newPos.z);
+
+			return newPos;
 		});
 		renderer.setFragmentShader([](Vec3 v3) 
 		{

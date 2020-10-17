@@ -439,6 +439,14 @@ public:
         return true;
     }
 
+    float min(float a, float b) {
+        if (a <= b) {
+            return a;
+        }
+        else 
+            return b;
+    }
+
     ~Matrix4(){}
 
 };

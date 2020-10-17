@@ -136,16 +136,16 @@ void Renderer::unbindFramebuffer() {
 void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) 
 {
 	// omvandling av vertiserna så de befinner sig i rätt position i förhållande till worldspace
-	vertexShader(v0);
-	vertexShader(v1);
-	vertexShader(v2);
+	Vec4 newPos0 = vertexShader(v0);
+	Vec4 newPos1 = vertexShader(v1);
+	Vec4 newPos2 = vertexShader(v2);
 	// -----------------------------------------------------------------------------------------
 
 	// omvandla till rasteriseringskoordinater -------------------------------------------------
 	// ska vara från 0 till width och 0 till height.
-	convertToRasterSpace(v0);
-	convertToRasterSpace(v1);
-	convertToRasterSpace(v2);
+	v0.pos = convertToRasterSpace(newPos0);
+	v1.pos = convertToRasterSpace(newPos1);
+	v2.pos = convertToRasterSpace(newPos2);
 
 	// -----------------------------------------------------------------------------------------
 
@@ -154,18 +154,25 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 	std::vector<Vec2> line1 = createLine(v1.pos.x, v2.pos.x, v1.pos.y, v2.pos.y);
 	std::vector<Vec2> line2 = createLine(v2.pos.x, v0.pos.x, v2.pos.y, v0.pos.y);
 
+	// sortera y-värdena så [0].y är lägst och [size()].y är högst
+	if (line0[0].y > line0[line0.size()].y) {
+		std::reverse(line0.begin(), line0.end());
+	}
+	if (line1[0].y > line1[line1.size()].y) {
+		std::reverse(line1.begin(), line1.end());
+	}
+	if (line2[0].y > line2[line2.size()].y) {
+		std::reverse(line2.begin(), line2.end());
+	}
 
-
-	// TODO: interpolera värden via barycentric coordinates? o:
-	// man beräknar barycentric coordinates för varje pixel!
+	// TODO: (interpolera värden via barycentric coordinates? o:)
+	// (man beräknar barycentric coordinates för varje pixel!)
+	pixels.clear();
 	normals.clear();
 	uvCoords.clear();
+	// TODO: fill std::vector<std::vector<int>> with pixels (fill triangle)
+
 	
-
-
-
-	// TODO: använd v0, v1, v2 för att få alla mellanvärden för normals och uvcoords.
-	// dvs interpolera.
 	
 
 	// -----------------------------------------------------------------------------------------
@@ -186,7 +193,7 @@ void Renderer::draw(void* handle)
 	}
 }
 
-void Renderer::setVertexShader(const std::function<void(Vertex&)> vertexShader) {
+void Renderer::setVertexShader(const std::function<Vec4(Vertex&)> vertexShader) {
 	this->vertexShader = vertexShader;
 }
 void Renderer::setFragmentShader(void(*fragmentShader)(Vec3)) {
@@ -290,11 +297,27 @@ std::vector<Vec2> Renderer::createLine(int x0, int x1, int y0, int y1)
 	return newLine;
 }
 
-void Renderer::convertToRasterSpace(Vertex& v) 
+Vec3 Renderer::convertToRasterSpace(Vec4& v) 
 {
-	v.pos.x = (v.pos.x + framebuffer.width / 2) / framebuffer.width;
-	v.pos.y = (v.pos.y + framebuffer.height / 2) / framebuffer.height;
+	Vec3 pos;
+	if (v.w != 0) {
+		pos = Vec3(v.x / v.w, v.y / v.w, v.z / v.w);
+	}
+	else {
+		printf("w is 0 :( \n");
+	}
 
-	v.pos.x = v.pos.x * framebuffer.width;
-	v.pos.y = (1 - v.pos.y) * framebuffer.height;
+	Vec2 windowSpacePos = Vec2((pos.x + 1) / 2 * framebuffer.width, (1 - pos.y) / 2 * framebuffer.height);
+	pos.x = windowSpacePos.x;
+	pos.y = windowSpacePos.y;
+
+	return pos;
 }
+
+void Renderer::fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, std::vector<Vec2> line2)
+{
+	// check which lines share the top-most vertex (lowest y)
+	// use min(a, b) math function?
+}
+
+

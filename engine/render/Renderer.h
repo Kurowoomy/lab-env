@@ -36,7 +36,7 @@ public:
 	int textureWidth, textureHeight, channels;
 	std::vector<std::vector<Vec3>> normals; // nya/tomma för varje triangel [y][x]
 	std::vector<std::vector<Vec2>> uvCoords; // nya/tomma för varje triangel [y][x]
-	std::vector<std::vector<int>> pixels;
+	std::vector<std::pair<int, int>> pixels;
 
 	// Reads obj file, saves all data to mesh and buffers in this Renderer object.
 	void* addVertexIndexBuffer(const char* objPath);
@@ -58,4 +58,7 @@ public:
 	std::vector<Vec2> createLine(int x0, int x1, int y0, int y1);
 	Vec3 convertToRasterSpace(Vec4& v);
 	void fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, std::vector<Vec2> line2);
+	void interpolate(int x, int y, Vertex v0, Vertex v1, Vertex v2);
+
+	float min(float a, float b);
 };

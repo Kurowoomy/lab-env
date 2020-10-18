@@ -155,13 +155,13 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 	std::vector<Vec2> line2 = createLine(v2.pos.x, v0.pos.x, v2.pos.y, v0.pos.y);
 
 	// sortera y-värdena så [0].y är lägst och [size()].y är högst
-	if (line0[0].y > line0[line0.size()].y) {
+	if (line0[0].y > line0[line0.size() - 1].y) {
 		std::reverse(line0.begin(), line0.end());
 	}
-	if (line1[0].y > line1[line1.size()].y) {
+	if (line1[0].y > line1[line1.size() - 1].y) {
 		std::reverse(line1.begin(), line1.end());
 	}
-	if (line2[0].y > line2[line2.size()].y) {
+	if (line2[0].y > line2[line2.size() - 1].y) {
 		std::reverse(line2.begin(), line2.end());
 	}
 
@@ -169,9 +169,11 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 	// (man beräknar barycentric coordinates för varje pixel!)
 	pixels.clear();
 	normals.clear();
-	uvCoords.clear();
-	// TODO: fill std::vector<std::vector<int>> with pixels (fill triangle)
+	
+	fillTriangle(line0, line1, line2);
 
+	//pixels vector is ready to use for interpolation!
+	uvCoords.clear();
 	
 	
 
@@ -316,8 +318,181 @@ Vec3 Renderer::convertToRasterSpace(Vec4& v)
 
 void Renderer::fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, std::vector<Vec2> line2)
 {
-	// check which lines share the top-most vertex (lowest y)
-	// use min(a, b) math function?
+	std::vector<Vec2> lines[] = { line0, line1, line2 };
+	int shortest, longest, top1, top2, thirdLine, left, right, currentY, currentX, Xend;
+	// check which lines share the top-most vertex (lowest y) --------------------------------------
+	// assign value to top1, it's the line with lowest y
+	top1 = min(lines[0][0].y, min(lines[1][0].y, lines[2][0].y));
+	if (top1 == lines[0][0].y) 
+		top1 = 0;
+	else if (top1 == lines[1][0].y)
+		top1 = 1;
+	else if (top1 == lines[2][0].y)
+		top1 = 2;
+
+	// assign value to top2, lines[top1][0].y needs to be the same as lines[top2][0].y
+	switch (top1) {
+	case 0:
+		if (lines[top1][0].y == lines[1][0].y)
+			top2 = 1;
+		else
+			top2 = 2;
+		break;
+	case 1:
+		if (lines[top1][0].y == lines[0][0].y)
+			top2 = 0;
+		else
+			top2 = 2;
+		break;
+	case 2:
+		if (lines[top1][0].y == lines[0][0].y)
+			top2 = 0;
+		else
+			top2 = 1;
+		break;
+	}
+	// ---------------------------------------------------------------------------------------------
+
+	// check which of those two lines are shortest, lines[top1] or lines[top2] ---------------------
+	if (lines[top1][lines[top1].size() - 1].y <= lines[top2][lines[top2].size() - 1].y) {
+		shortest = top1;
+		longest = top2;
+	}
+	else {
+		shortest = top2;
+		longest = top1;
+	}
+	// ---------------------------------------------------------------------------------------------
+
+	// loop trough shortest line to fill between the two lines -------------------------------------
+	// check which line is on the left, start from there
+	if (lines[top1][lines[top1].size() - 1].x <= lines[top2][lines[top2].size() - 1].x) {
+		left = top1;
+		right = top2;
+	}
+	else {
+		left = top2;
+		right = top1;
+	}
+
+	// fill pixels until currentY is the same as the last y in shortest line
+	int leftIndex = 0, rightIndex = 0;
+	currentY = lines[left][leftIndex].y;
+	while (currentY < lines[shortest][lines[shortest].size() - 1].y)
+	{
+		// beginning of each row, find end of row on lines[right], update Xend
+		currentX = lines[left][leftIndex].x;
+		// stop incrementing index when rightIndex is at the last index or when rightIndex is on the next line
+		while (lines[right][rightIndex].y == currentY) 
+		{
+			rightIndex++;
+			if (rightIndex == lines[right].size())
+				break; // don't check while condition cause rightIndex is now out of bounds, abort loop
+		}
+		Xend = lines[right][rightIndex - 1].x;
+		
+		// beginning of each row's X, add to pixels
+		pixels.push_back(std::make_pair(currentX, currentY));
+		while (currentX < Xend) 
+		{
+			currentX++;
+			pixels.push_back(std::make_pair(currentX, currentY));
+		}
+
+		// end of each row, update leftIndex
+		currentY++;
+		while (lines[left][leftIndex].y != currentY) 
+		{
+			leftIndex++;
+			if (leftIndex == lines[left].size())
+				break;
+		}
+	}
+	// don't fill last row, let thirdLine do it
+
+	
+	// loop through the third line -----------------------------------------------------------------
+	// find thirdLine, keep longest
+	if (longest == 0) {
+		if (shortest == 1) {
+			thirdLine = 2;
+		}
+		else {
+			thirdLine = 1;
+		}
+	}
+	else if (longest == 1) {
+		if (shortest == 0) {
+			thirdLine = 2;
+		}
+		else {
+			thirdLine = 0;
+		}
+	}
+	else if (longest == 2) {
+		if (shortest == 0) {
+			thirdLine = 1;
+		}
+		else {
+			thirdLine = 0;
+		}
+	}
+	//reset left or right to 0 depending on which is shorter, update shortest
+	if (left == shortest) {
+		left = thirdLine;
+		leftIndex = 0;
+	}
+	else {
+		right = thirdLine;
+		rightIndex = 0;
+	}
+	shortest = thirdLine;
+
+	// loop, fill rest of triangle, starting from lines[shortest][0] which is on last row of first flat bottom triangle
+	// i.e. fill the rest of the triangle, do not allow loop to skip first row this time, <= instead of <
+	while (currentY <= lines[shortest][lines[shortest].size() - 1].y)
+	{
+		// beginning of each row, find end of row on lines[right], update Xend
+		currentX = lines[left][leftIndex].x;
+		while (lines[right][rightIndex].y == currentY) 
+		{
+			rightIndex++;
+			if (rightIndex == lines[right].size())
+				break;
+		}
+		Xend = lines[right][rightIndex - 1].x;
+
+		// beginning of each row's X, add to pixels
+		pixels.push_back(std::make_pair(currentX, currentY));
+		while (currentX < Xend) 
+		{
+			currentX++;
+			pixels.push_back(std::make_pair(currentX, currentY));
+		}
+
+		// end of each row, update leftIndex
+		currentY++;
+		while (lines[left][leftIndex].y != currentY) 
+		{
+			leftIndex++;
+			if (leftIndex == lines[left].size())
+				break;
+		}
+	}
+	// ---------------------------------------------------------------------------------------------
+}
+
+void Renderer::interpolate(int x, int y, Vertex v0, Vertex v1, Vertex v2)
+{
+}
+
+float Renderer::min(float a, float b)
+{
+	if (a <= b) {
+		return a;
+	}
+	else
+		return b;
 }
 
 

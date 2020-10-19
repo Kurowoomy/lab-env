@@ -104,7 +104,7 @@ ExampleApp::Open()
 		this->window->GetSize(width, height);
 		renderer.setFramebuffer(width, height);
 
-		renderer.loadTextureFile("engine/render/flower_texture.png");
+		renderer.loadTextureFile("projects/Rasterizer/flower_texture.png");
 
 		viewMatrix = Matrix4::viewMatrix(Vec4(0, 0, 10), Vec4(0, 0, 0), Vec4(0, 1, 0)); 
 		projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 3000.0f);
@@ -123,14 +123,15 @@ ExampleApp::Open()
 
 			return newPos;
 		});
-		renderer.setFragmentShader([](Vec3 v3) 
+		renderer.setPixelShader([](Vec2 uvcoord, Vec3 normal, unsigned char* textureColor)
 		{
-			// TODO: write cpu fragment shader
+			Vec4 pixelColor;
 
-			printf("it works? o: %f", v3.x);
 
+
+			return pixelColor;
 		});
-		renderer.draw(renderer.addVertexIndexBuffer("engine/render/cube.obj"));
+		renderer.draw(renderer.addVertexIndexBuffer("engine/render/dragon.obj"));
 		
 		// create a graphics node object (screen to put texture on)
 		gn.setMesh("engine/render/square.obj");

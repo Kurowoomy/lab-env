@@ -91,10 +91,10 @@ void Renderer::setFramebuffer(unsigned int width, unsigned int height)
 
 	framebuffer.width = width;
 	framebuffer.height = height;
-	framebuffer.colorBuffer.resize(height);
+	/*framebuffer.colorBuffer.resize(height);
 	for (int i = 0; i < framebuffer.colorBuffer.size(); i++) {
 		framebuffer.colorBuffer[i].resize(width);
-	}
+	}*/
 	
 	glGenTextures(1, &colorID);
 	glBindTexture(GL_TEXTURE_2D, colorID);
@@ -165,23 +165,27 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 		std::reverse(line2.begin(), line2.end());
 	}
 
-	// TODO: (interpolera värden via barycentric coordinates? o:)
-	// (man beräknar barycentric coordinates för varje pixel!)
+	// fill triangle and interpolate vertex attributes
+	// use these three only for this triangle and pixel shader
 	pixels.clear();
 	normals.clear();
-	
-	fillTriangle(line0, line1, line2);
-
-	//pixels vector is ready to use for interpolation!
 	uvCoords.clear();
-	
-	
-
+	//int i = pixels.size();
+	fillTriangle(line0, line1, line2); 
+	//pixels vector is ready to use for interpolation!
+	for (std::pair<int, int> pixel : pixels) {
+		interpolate(pixel.first, pixel.second, v0, v1, v2);
+	}
+	/*for (i; i < pixels.size(); i++) {
+		interpolate(pixels[normals.size()].first, pixels[normals.size()].second, v0, v1, v2);
+	}*/
 	// -----------------------------------------------------------------------------------------
 
 	// pixel shader ----------------------------------------------------------------------------
-	// TODO: använd pixelShader-metoden här. och textureColor. [i], [i+1], [i+2], [i+3]  = r, g, b, a.
-	// textureColor = objectColor. 
+	for (int i = 0; i < pixels.size(); i++) {
+		framebuffer.colorBuffer.push_back(pixelShader(uvCoords[i], normals[i], textureColor));
+	}
+
 
 	// -----------------------------------------------------------------------------------------
 }
@@ -189,7 +193,10 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 void Renderer::draw(void* handle) 
 {
 	Buffers* buffers = (Buffers*)handle;
-	
+	pixels.clear();
+	normals.clear();
+	uvCoords.clear();
+
 	for (int i = 0; i < buffers->indexBuffer.size(); i+=3) {
 		rasterizeTriangle(buffers->vertexBuffer[i], buffers->vertexBuffer[i + 1], buffers->vertexBuffer[i + 2]);
 	}
@@ -198,8 +205,8 @@ void Renderer::draw(void* handle)
 void Renderer::setVertexShader(const std::function<Vec4(Vertex&)> vertexShader) {
 	this->vertexShader = vertexShader;
 }
-void Renderer::setFragmentShader(void(*fragmentShader)(Vec3)) {
-	this->fragmentShader = fragmentShader;
+void Renderer::setPixelShader(const std::function<Vec4(Vec2, Vec3, unsigned char*)> pixelShader) {
+	this->pixelShader = pixelShader;
 }
 
 void Renderer::loadTextureFile(const char* fileName) {
@@ -482,8 +489,29 @@ void Renderer::fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, st
 	// ---------------------------------------------------------------------------------------------
 }
 
-void Renderer::interpolate(int x, int y, Vertex v0, Vertex v1, Vertex v2)
+void Renderer::interpolate(int x, int y, Vertex& v0, Vertex& v1, Vertex& v2)
 {
+	// räkna ut vikterna för varje pixel, använd dem för att lägga till värde i alla attributes
+	float w0, w1, w2, denominator;
+	denominator = ((v1.pos.y - v2.pos.y) * (v0.pos.x - v2.pos.x)) + ((v2.pos.x - v1.pos.x) * (v0.pos.y - v2.pos.y));
+	w0 = ((v1.pos.y - v2.pos.y) * (x - v2.pos.x)) + ((v2.pos.x - v1.pos.x) * (y - v2.pos.y)) / denominator;
+	w1 = ((v2.pos.y - v0.pos.y) * (x - v2.pos.x)) + ((v0.pos.x - v2.pos.x) * (y - v2.pos.y)) / denominator;
+	w2 = 1 - w0 - w1;
+
+	Vec3 normal;
+	Vec2 uvcoord;
+	// interpolate normal values
+	normal.x = w0 * v0.normal.x + w1 * v1.normal.x + w2 * v2.normal.x;
+	normal.y = w0 * v0.normal.y + w1 * v1.normal.y + w2 * v2.normal.y;
+	normal.z = w0 * v0.normal.z + w1 * v1.normal.z + w2 * v2.normal.z;
+	normals.push_back(normal);
+
+	// interpolate uvcoord values
+	uvcoord.x = w0 * v0.uv.x + w1 * v1.uv.x + w2 * v2.uv.x;
+	uvcoord.y = w0 * v0.uv.y + w1 * v1.uv.y + w2 * v2.uv.y;
+	uvCoords.push_back(uvcoord);
+
+	// later: interpolate depth values
 }
 
 float Renderer::min(float a, float b)

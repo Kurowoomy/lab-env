@@ -113,11 +113,11 @@ void GraphicsNode::setMesh(const char* objPath)
 	mesh.get()->addArrayAttribute(3, 3); // vertices
 	mesh.get()->vertexUnbind();
 
-	//glGenBuffers(1, &mesh.get()->textureID);
-	//glBindBuffer(GL_ARRAY_BUFFER, mesh.get()->textureID);
-	//glBufferData(GL_ARRAY_BUFFER, mesh.get()->uvs.size() * sizeof(Vec3), &mesh.get()->uvs[0], GL_STATIC_DRAW);
-	//mesh.get()->addArrayAttribute(2, 2); // uvs
-	//mesh.get()->vertexUnbind();
+	glGenBuffers(1, &mesh.get()->textureID);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.get()->textureID);
+	glBufferData(GL_ARRAY_BUFFER, mesh.get()->uvs.size() * sizeof(Vec3), &mesh.get()->uvs[0], GL_STATIC_DRAW);
+	mesh.get()->addArrayAttribute(2, 2); // uvs
+	mesh.get()->vertexUnbind();
 
 	glGenBuffers(1, &mesh.get()->normalID);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.get()->normalID);
@@ -178,18 +178,18 @@ Matrix4& GraphicsNode::getTransform()
 
 void GraphicsNode::draw()
 {
-	//getTexture().bindTexture();
+	getTexture().bindTexture();
 	getMesh().vertexArrayBind();
 	glDrawElements(GL_TRIANGLES, vertices, GL_UNSIGNED_INT, nullptr);
 	//glDrawElements(GL_TRIANGLES, mesh.get()->vertices.size(), GL_UNSIGNED_INT, nullptr);
 	getMesh().vertexArrayUnbind();
-	//getTexture().unbindTexture();
+	getTexture().unbindTexture();
 	getShader().quitProgram();
 }
 
 void GraphicsNode::destroyAll()
 {
 	getShader().destroy();
-	//getTexture().destroyID();
+	getTexture().destroyID();
 	getMesh().destroyID();
 }

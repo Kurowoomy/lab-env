@@ -5,6 +5,7 @@
 #include <functional>
 #include "render/stb_image.h"
 #include <algorithm>
+#include "TextureResource.h"
 
 
 struct Vertex {
@@ -18,7 +19,7 @@ struct Buffers {
 	std::vector<unsigned int> indexBuffer;
 };
 struct Framebuffer {
-	std::vector<Vec4> colorBuffer; // [y][x], [height][width]
+	std::vector<Vec4> colorBuffer;
 	unsigned int width, height;
 };
 
@@ -27,13 +28,16 @@ public:
 	Buffers buffers;
 	MeshResource mesh;
 	Framebuffer framebuffer;
-	GLuint framebufferID, colorID, depthID;
+	GLuint framebufferID, /*colorID,*/ depthID;
 	std::function<Vec4(Vertex&)> vertexShader;
 	std::function<Vec4(Vec2, Vec3, unsigned char*)> pixelShader;
 	Matrix4 model;
 	Vec3 worldPos;
-	unsigned char* textureColor;
-	int textureWidth, textureHeight, channels;
+	
+	TextureResource texture;
+	/*unsigned char* textureColor;
+	int textureWidth, textureHeight, channels;*/
+
 	std::vector<Vec3> normals; // nya/tomma för varje triangel [y][x]
 	std::vector<Vec2> uvCoords; // nya/tomma för varje triangel [y][x]
 	std::vector<std::pair<int, int>> pixels;

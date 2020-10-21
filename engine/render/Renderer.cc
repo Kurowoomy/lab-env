@@ -91,27 +91,28 @@ void Renderer::setFramebuffer(unsigned int width, unsigned int height)
 
 	framebuffer.width = width;
 	framebuffer.height = height;
-	/*framebuffer.colorBuffer.resize(height);
-	for (int i = 0; i < framebuffer.colorBuffer.size(); i++) {
-		framebuffer.colorBuffer[i].resize(width);
-	}*/
 	
-	glGenTextures(1, &colorID);
-	glBindTexture(GL_TEXTURE_2D, colorID);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	//glEnable(GL_TEXTURE_2D);
+	texture.genTexture();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_FLOAT, &framebuffer.colorBuffer[0]);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glGenerateMipmap(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	texture.unbindTexture();
 
 	glGenRenderbuffers(1, &depthID);
 	glBindRenderbuffer(GL_RENDERBUFFER, depthID);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorID, 0);
+	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.textureID, 0);
+	/*glBindFramebuffer(GL_READ_FRAMEBUFFER, framebufferID);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBlitFramebuffer()*/
+
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
 
 	if (glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -146,7 +147,6 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 	v0.pos = convertToRasterSpace(newPos0);
 	v1.pos = convertToRasterSpace(newPos1);
 	v2.pos = convertToRasterSpace(newPos2);
-
 	// -----------------------------------------------------------------------------------------
 
 	// Måste först hitta alla pixlar man behöver jobba med för denna triangel-------------------
@@ -174,7 +174,41 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 	fillTriangle(line0, line1, line2); 
 	//pixels vector is ready to use for interpolation!
 	for (std::pair<int, int> pixel : pixels) {
+		// make all pos into int because they're coordinates
+		v0.pos.x = (int)v0.pos.x;
+		v0.pos.y = (int)v0.pos.y;
+		v1.pos.x = (int)v1.pos.x;
+		v1.pos.y = (int)v1.pos.y;
+		v2.pos.x = (int)v2.pos.x;
+		v2.pos.y = (int)v2.pos.y;
+
 		interpolate(pixel.first, pixel.second, v0, v1, v2);
+		// probably need to sort v0, v1, v2 by y value
+		/*if (min(v0.pos.y, min(v1.pos.y, v2.pos.y)) == v0.pos.y) {
+			if (v1.pos.y <= v2.pos.y) {
+				interpolate(pixel.first, pixel.second, v0, v1, v2);
+			}
+			else {
+				interpolate(pixel.first, pixel.second, v0, v2, v1);
+			}
+		}
+		else if (min(v0.pos.y, min(v1.pos.y, v2.pos.y)) == v1.pos.y) {
+			if (v0.pos.y <= v2.pos.y) {
+				interpolate(pixel.first, pixel.second, v1, v0, v2);
+			}
+			else {
+				interpolate(pixel.first, pixel.second, v1, v2, v0);
+			}
+		}
+		else if (min(v0.pos.y, min(v1.pos.y, v2.pos.y)) == v2.pos.y) {
+			if (v0.pos.y <= v1.pos.y) {
+				interpolate(pixel.first, pixel.second, v2, v0, v1);
+			}
+			else {
+				interpolate(pixel.first, pixel.second, v2, v1, v0);
+			}
+		}*/
+		
 	}
 	/*for (i; i < pixels.size(); i++) {
 		interpolate(pixels[normals.size()].first, pixels[normals.size()].second, v0, v1, v2);
@@ -183,23 +217,28 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 
 	// pixel shader ----------------------------------------------------------------------------
 	for (int i = 0; i < pixels.size(); i++) {
-		framebuffer.colorBuffer.push_back(pixelShader(uvCoords[i], normals[i], textureColor));
+		//framebuffer.colorBuffer.push_back(pixelShader(uvCoords[i], normals[i], texture.data));
 	}
+	// TODO: colorBuffer fylld, kan lägga till den som textur..? where??
 
 
 	// -----------------------------------------------------------------------------------------
 }
 
-void Renderer::draw(void* handle) 
+void Renderer::draw(void* handle)
 {
 	Buffers* buffers = (Buffers*)handle;
 	pixels.clear();
 	normals.clear();
 	uvCoords.clear();
+	framebuffer.colorBuffer.resize(framebuffer.width * framebuffer.height);
 
-	for (int i = 0; i < buffers->indexBuffer.size(); i+=3) {
+	for (int i = 0; i < buffers->indexBuffer.size(); i += 3) {
 		rasterizeTriangle(buffers->vertexBuffer[i], buffers->vertexBuffer[i + 1], buffers->vertexBuffer[i + 2]);
 	}
+
+
+
 }
 
 void Renderer::setVertexShader(const std::function<Vec4(Vertex&)> vertexShader) {
@@ -210,7 +249,8 @@ void Renderer::setPixelShader(const std::function<Vec4(Vec2, Vec3, unsigned char
 }
 
 void Renderer::loadTextureFile(const char* fileName) {
-	textureColor = stbi_load(fileName, &textureWidth, &textureHeight, &channels, 0);
+	texture.data = stbi_load(fileName, &texture.width, &texture.height, &texture.comp, STBI_rgb_alpha);
+	//textureColor = stbi_load(fileName, &textureWidth, &textureHeight, &channels, STBI_rgb_alpha);
 }
 
 std::vector<Vec2> Renderer::createLine(int x0, int x1, int y0, int y1) 
@@ -493,9 +533,9 @@ void Renderer::interpolate(int x, int y, Vertex& v0, Vertex& v1, Vertex& v2)
 {
 	// räkna ut vikterna för varje pixel, använd dem för att lägga till värde i alla attributes
 	float w0, w1, w2, denominator;
-	denominator = ((v1.pos.y - v2.pos.y) * (v0.pos.x - v2.pos.x)) + ((v2.pos.x - v1.pos.x) * (v0.pos.y - v2.pos.y));
-	w0 = ((v1.pos.y - v2.pos.y) * (x - v2.pos.x)) + ((v2.pos.x - v1.pos.x) * (y - v2.pos.y)) / denominator;
-	w1 = ((v2.pos.y - v0.pos.y) * (x - v2.pos.x)) + ((v0.pos.x - v2.pos.x) * (y - v2.pos.y)) / denominator;
+	denominator = (v1.pos.y - v2.pos.y) * (v0.pos.x - v2.pos.x) + (v2.pos.x - v1.pos.x) * (v0.pos.y - v2.pos.y);
+	w0 = ((v1.pos.y - v2.pos.y) * (x - v2.pos.x) + (v2.pos.x - v1.pos.x) * (y - v2.pos.y)) / denominator;
+	w1 = ((v2.pos.y - v0.pos.y) * (x - v2.pos.x) + (v0.pos.x - v2.pos.x) * (y - v2.pos.y)) / denominator;
 	w2 = 1 - w0 - w1;
 
 	Vec3 normal;
@@ -506,9 +546,9 @@ void Renderer::interpolate(int x, int y, Vertex& v0, Vertex& v1, Vertex& v2)
 	normal.z = w0 * v0.normal.z + w1 * v1.normal.z + w2 * v2.normal.z;
 	normals.push_back(normal);
 
-	// interpolate uvcoord values
-	uvcoord.x = w0 * v0.uv.x + w1 * v1.uv.x + w2 * v2.uv.x;
-	uvcoord.y = w0 * v0.uv.y + w1 * v1.uv.y + w2 * v2.uv.y;
+	// interpolate uvcoord values, need to be integers for texture coordinates
+	uvcoord.x = round(w0 * v0.uv.x + w1 * v1.uv.x + w2 * v2.uv.x);
+	uvcoord.y = round(w0 * v0.uv.y + w1 * v1.uv.y + w2 * v2.uv.y);
 	uvCoords.push_back(uvcoord);
 
 	// later: interpolate depth values

@@ -100,15 +100,6 @@ ExampleApp::Open()
 
 	if (this->window->Open())
 	{
-		int width, height;
-		this->window->GetSize(width, height);
-		renderer.setFramebuffer(width, height);
-
-		renderer.loadTextureFile("projects/Rasterizer/flower_texture.png");
-
-		viewMatrix = Matrix4::viewMatrix(Vec4(0, 0, 10), Vec4(0, 0, 0), Vec4(0, 1, 0)); 
-		projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 3000.0f);
-
 		renderer.setVertexShader([this](Vertex& vertex) 
 		{
 			Vec4 newPos, newNormal, newWorldPos, newTexCoords;
@@ -117,26 +108,47 @@ ExampleApp::Open()
 			renderer.worldPos = Vec3(newWorldPos.x, newWorldPos.y, newWorldPos.z);
 			newNormal = renderer.model * Vec4(vertex.normal.x, vertex.normal.y, vertex.normal.z);
 			vertex.normal = Vec3(newNormal.x, newNormal.y, newNormal.z);
-			newTexCoords = renderer.model * Vec4(vertex.uv.x, vertex.uv.y, 0);
-			vertex.uv = Vec2(newTexCoords.x, newTexCoords.y);
+			vertex.uv.x = vertex.uv.x * renderer.texture.width;
+			vertex.uv.y = vertex.uv.y * renderer.texture.height;
 			vertex.pos = Vec3(newPos.x, newPos.y, newPos.z);
 
 			return newPos;
 		});
-		renderer.setPixelShader([](Vec2 uvcoord, Vec3 normal, unsigned char* textureColor)
+		renderer.setPixelShader([this](Vec2 uvcoord, Vec3 normal, unsigned char* textureColor)
 		{
 			Vec4 pixelColor;
 
+			// find position i in textureColor[i], use uvcoord.x and uvcoord.y
+			//för varje y har det gått textureWidth i pixlar
+			int i = renderer.texture.width * uvcoord.y * 4 + uvcoord.x * 4;
+			pixelColor.x = textureColor[i];
+			pixelColor.y = textureColor[i + 1];
+			pixelColor.z = textureColor[i + 2];
+			pixelColor.w = textureColor[i + 3];
 
-
-			return pixelColor;
+			return pixelColor; // detta borde vara tillräckligt för att se kuben
 		});
-		renderer.draw(renderer.addVertexIndexBuffer("engine/render/dragon.obj"));
+
+		int width, height;
+		this->window->GetSize(width, height);
+		
+		
+		renderer.loadTextureFile("projects/Rasterizer/minecraft_dirt2.png");
+
+
+		viewMatrix = Matrix4::viewMatrix(Vec4(0, 0, 10), Vec4(0, 0, 0), Vec4(0, 1, 0)); 
+		projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 3000.0f);
+
+		renderer.framebuffer.width = width;
+		renderer.framebuffer.height = height;
+		renderer.draw(renderer.addVertexIndexBuffer("engine/render/cube.obj"));
+		
+		renderer.setFramebuffer(width, height);
 		
 		// create a graphics node object (screen to put texture on)
 		gn.setMesh("engine/render/square.obj");
-		gn.setShader("engine/render/vs.txt", 
-			"engine/render/fs.txt");
+		gn.setShader("engine/render/vs.txt", "engine/render/fs.txt");
+		gn.setTexture(renderer.texture);
 
 		return true;
 	}
@@ -152,15 +164,29 @@ ExampleApp::Run()
 	while (this->window->IsOpen())
 	{
 		// set clear color to gray
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+		
+		
 
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
+
+		//renderer.draw(renderer.addVertexIndexBuffer("engine/render/cube.obj"));
+
 		this->window->Update();
 
 		// do stuff
-
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		//glClear(GL_COLOR_BUFFER_BIT);
+		//gn.getShader().useProgram();
+		//gn.draw();
+		
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, renderer.framebufferID);
+		glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBlitFramebuffer(0, 0, renderer.framebuffer.width, renderer.framebuffer.height, 0, 0, renderer.framebuffer.width, renderer.framebuffer.height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
 
 		this->window->SwapBuffers();

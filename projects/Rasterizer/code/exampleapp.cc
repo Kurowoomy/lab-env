@@ -109,14 +109,15 @@ ExampleApp::Open()
 			newNormal = renderer.model * Vec4(vertex.normal.x, vertex.normal.y, vertex.normal.z);
 			vertex.normal = Vec3(newNormal.x, newNormal.y, newNormal.z);
 			vertex.uv.x = vertex.uv.x * (renderer.texture.width); // size 512, uv positions are 0 - 511
-			vertex.uv.y = vertex.uv.y * (renderer.texture.height);
+			vertex.uv.y = vertex.uv.y * (renderer.texture.height - 1);
 			vertex.pos = Vec3(newPos.x, newPos.y, newPos.z);
 
 			return newPos;
 		});
 		renderer.setPixelShader([this](Vec2 uvcoord, Vec3 normal, unsigned char* textureColor)
 		{
-			Vec4 pixelColor;
+			Vec4 pixelColor; // object color, base
+			Vec4 result; // final color after using pixelColor and lighting together
 
 			// find position i in textureColor[i], use uvcoord.x and uvcoord.y
 			//för varje y har det gått textureWidth i pixlar
@@ -126,7 +127,11 @@ ExampleApp::Open()
 			pixelColor.z = textureColor[i + 2];
 			pixelColor.w = textureColor[i + 3];
 
-			return pixelColor; // detta borde vara tillräckligt för att se kuben
+			// add lighting here
+
+
+			result = pixelColor;
+			return result;
 		});
 
 		int width, height;

@@ -145,6 +145,8 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 
 	// Måste först hitta alla pixlar man behöver jobba med för denna triangel-------------------
 	// dvs börja använda pos.z! Ju närmare kameran desto närmare 0, ju längre bort desto större z-värde. Bakom kameran är det negativa värden.
+	
+	// (borde gå att rensa redan innan man skapar linjerna dock. Men jag har en känsla att det kan leda till kaos när trianglar korsar varandra.)
 	std::vector<Vec2> line0 = createLine(v0.pos.x, v1.pos.x, v0.pos.y, v1.pos.y);
 	std::vector<Vec2> line1 = createLine(v1.pos.x, v2.pos.x, v1.pos.y, v2.pos.y);
 	std::vector<Vec2> line2 = createLine(v2.pos.x, v0.pos.x, v2.pos.y, v0.pos.y);
@@ -165,10 +167,10 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 	pixels.clear();
 	normals.clear();
 	uvCoords.clear();
-	//int i = pixels.size();
 	fillTriangle(line0, line1, line2); 
 	//pixels vector is ready to use for interpolation!
-	for (std::pair<int, int> pixel : pixels) {
+	int i = 0;
+	for (Vec3 pixel : pixels) {
 		// make all pos into int because they're coordinates
 		v0.pos.x = round(v0.pos.x);
 		v0.pos.y = round(v0.pos.y);
@@ -177,34 +179,37 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 		v2.pos.x = round(v2.pos.x);
 		v2.pos.y = round(v2.pos.y);
 
-		interpolate(pixel.first, pixel.second, v0, v1, v2);
-		
+		interpolate(pixel.x, pixel.y, i, v0, v1, v2);
+		i++;
 	}
 	// -----------------------------------------------------------------------------------------
 
 	// pixel shader ----------------------------------------------------------------------------
 	for (int i = 0; i < pixels.size(); i++) {
-		Vec4 pixel = pixelShader(uvCoords[i], normals[i], texture.data);
-		framebuffer.colorBuffer[pixels[i].second * framebuffer.width + pixels[i].first].x = pixel.x / 255;
-		framebuffer.colorBuffer[pixels[i].second * framebuffer.width + pixels[i].first].y = pixel.y / 255;
-		framebuffer.colorBuffer[pixels[i].second * framebuffer.width + pixels[i].first].z = pixel.z / 255;
-		framebuffer.colorBuffer[pixels[i].second * framebuffer.width + pixels[i].first].w = pixel.w / 255;
+		// depth buffer check!
+		// dvs om currentPixel.pos.z < depthbuffer[currentPixelPos], uppdatera depthbuffer och måla pixel/lägg till pixel i colorbuffer
+		if (pixels[i].z < framebuffer.depthBuffer[framebuffer.width * pixels[i].y + pixels[i].x]) 
+		{
+			framebuffer.depthBuffer[framebuffer.width * pixels[i].y + pixels[i].x] = pixels[i].z;
+
+			Vec4 pixel = pixelShader(uvCoords[i], normals[i], texture.data);
+			framebuffer.colorBuffer[pixels[i].y * framebuffer.width + pixels[i].x].x = pixel.x / 255;
+			framebuffer.colorBuffer[pixels[i].y * framebuffer.width + pixels[i].x].y = pixel.y / 255;
+			framebuffer.colorBuffer[pixels[i].y * framebuffer.width + pixels[i].x].z = pixel.z / 255;
+			framebuffer.colorBuffer[pixels[i].y * framebuffer.width + pixels[i].x].w = pixel.w / 255;
+		}
+		// else, do nothing for this pixel. Don't change pixel color in colorBuffer and let depthBuffer keep its value for this pixel.
 	}
-	
-
-
 	// -----------------------------------------------------------------------------------------
 }
 
 void Renderer::draw(void* handle)
 {
 	Buffers* buffers = (Buffers*)handle;
-	pixels.clear();
-	normals.clear();
-	uvCoords.clear();
 	framebuffer.colorBuffer.resize(framebuffer.width * framebuffer.height);
 	framebuffer.depthBuffer.resize(framebuffer.width * framebuffer.height);
 	for (int i = 0; i < framebuffer.depthBuffer.size(); i++) { // initialize depth buffer as far away from camera as possible
+		// ska egentligen få viewport-värdet men fixar det senare
 		framebuffer.depthBuffer[i] = 1000;
 	}
 	for (int i = 0; i < 1000; i++) {
@@ -220,7 +225,7 @@ void Renderer::draw(void* handle)
 		framebuffer.colorBuffer[i].w = 255.0f / 255;
 	}
 
-	for (int i = 0; i < 6/*buffers->indexBuffer.size()*/; i += 3) {
+	for (int i = 0; i < buffers->indexBuffer.size(); i += 3) {
 		rasterizeTriangle(buffers->vertexBuffer[i], buffers->vertexBuffer[i + 1], buffers->vertexBuffer[i + 2]);
 	}
 	// colorbuffer should now be filled and ready to render to frame
@@ -423,11 +428,11 @@ void Renderer::fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, st
 		Xend = lines[right][rightIndex - 1].x;
 		
 		// beginning of each row's X, add to pixels
-		pixels.push_back(std::make_pair(currentX, currentY));
+		pixels.push_back(Vec3(currentX, currentY, 0));
 		while (currentX < Xend) 
 		{
 			currentX++;
-			pixels.push_back(std::make_pair(currentX, currentY));
+			pixels.push_back(Vec3(currentX, currentY, 0));
 		}
 
 		// end of each row, update leftIndex
@@ -494,11 +499,11 @@ void Renderer::fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, st
 		Xend = lines[right][rightIndex - 1].x;
 
 		// beginning of each row's X, add to pixels
-		pixels.push_back(std::make_pair(currentX, currentY));
+		pixels.push_back(Vec3(currentX, currentY, 0));
 		while (currentX < Xend) 
 		{
 			currentX++;
-			pixels.push_back(std::make_pair(currentX, currentY));
+			pixels.push_back(Vec3(currentX, currentY, 0));
 		}
 
 		// end of each row, update leftIndex
@@ -513,7 +518,7 @@ void Renderer::fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, st
 	// ---------------------------------------------------------------------------------------------
 }
 
-void Renderer::interpolate(int x, int y, Vertex& v0, Vertex& v1, Vertex& v2)
+void Renderer::interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& v2)
 {
 	// räkna ut vikterna för varje pixel, använd dem för att lägga till värde i alla attributes
 	float w0 = 0, w1 = 0, w2, denominator;
@@ -543,7 +548,8 @@ void Renderer::interpolate(int x, int y, Vertex& v0, Vertex& v1, Vertex& v2)
 	}
 	uvCoords.push_back(uvcoord);
 
-	// later: interpolate depth values
+	// add current triangle pixels to depthbuffer
+	pixels[i].z = w0 * v0.pos.z + w1 * v1.pos.z + w2 * v2.pos.z;
 }
 
 float Renderer::min(float a, float b)

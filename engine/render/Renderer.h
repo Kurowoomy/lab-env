@@ -6,6 +6,7 @@
 #include "render/stb_image.h"
 #include <algorithm>
 #include "TextureResource.h"
+#include "ShaderObject.h"
 
 
 struct Vertex {
@@ -21,6 +22,9 @@ struct Buffers {
 struct Framebuffer {
 	std::vector<Vec4> colorBuffer;
 	unsigned int width, height;
+	// How to store depth buffer? What should it contain? When should I add and remove values from it? Should I sort the values at some point?
+	// When should I use it and how? I need a tutorial.
+	std::vector<float> depthBuffer;
 };
 
 class Renderer {
@@ -28,15 +32,14 @@ public:
 	Buffers buffers;
 	MeshResource mesh;
 	Framebuffer framebuffer;
-	GLuint framebufferID, /*colorID,*/ depthID;
+	GLuint framebufferID, depthID;
 	std::function<Vec4(Vertex&)> vertexShader;
 	std::function<Vec4(Vec2, Vec3, unsigned char*)> pixelShader;
 	Matrix4 model;
 	Vec3 worldPos;
 	
 	TextureResource texture;
-	/*unsigned char* textureColor;
-	int textureWidth, textureHeight, channels;*/
+	ShaderObject shader;
 
 	std::vector<Vec3> normals; // nya/tomma för varje triangel [y][x]
 	std::vector<Vec2> uvCoords; // nya/tomma för varje triangel [y][x]

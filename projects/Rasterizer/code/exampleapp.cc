@@ -39,16 +39,16 @@ ExampleApp::Open()
 			if (action == 1 || action == 2) { // 1 = pressed, 2 = holding, 0 = released 
 				switch (key) {
 				case 263: // left
-					gn.setTransform(Matrix4::translationMatrix(-moveSpeed, 0, 0) * gn.getTransform());
+					renderer.setTransform(Matrix4::translationMatrix(-moveSpeed, 0, 0) * renderer.getTransform());
 					break;
 				case 262: // right
-					gn.setTransform(Matrix4::translationMatrix(moveSpeed, 0, 0) * gn.getTransform());
+					renderer.setTransform(Matrix4::translationMatrix(moveSpeed, 0, 0) * renderer.getTransform());
 					break;
 				case 265: // up
-					gn.setTransform(Matrix4::translationMatrix(0, moveSpeed, 0) * gn.getTransform());
+					renderer.setTransform(Matrix4::translationMatrix(0, moveSpeed, 0) * renderer.getTransform());
 					break;
 				case 264: // down
-					gn.setTransform(Matrix4::translationMatrix(0, -moveSpeed, 0) * gn.getTransform());
+					renderer.setTransform(Matrix4::translationMatrix(0, -moveSpeed, 0) * renderer.getTransform());
 					break;
 				default:
 					this->window->Close();
@@ -73,12 +73,12 @@ ExampleApp::Open()
 					}
 
 					Matrix4 translation = Matrix4::translationMatrix(
-						gn.getTransform()[3], gn.getTransform()[7], gn.getTransform()[11]);
+						renderer.getTransform()[3], renderer.getTransform()[7], renderer.getTransform()[11]);
 					Matrix4 invTranslation = Matrix4::translationMatrix(
-						-gn.getTransform()[3], -gn.getTransform()[7], -gn.getTransform()[11]);
+						-renderer.getTransform()[3], -renderer.getTransform()[7], -renderer.getTransform()[11]);
 
-					gn.setTransform(translation * Matrix4::rotationY((x - lastMoveX) * rotationSpeed)
-						* Matrix4::rotationX((y - lastMoveY) * rotationSpeed) * invTranslation * gn.getTransform());
+					renderer.setTransform(translation * Matrix4::rotationY((x - lastMoveX) * rotationSpeed)
+						* Matrix4::rotationX((y - lastMoveY) * rotationSpeed) * invTranslation * renderer.getTransform());
 
 					lastRadX += x - lastMoveX;
 					lastRadY += y - lastMoveY;
@@ -102,8 +102,8 @@ ExampleApp::Open()
 	{
 		renderer.setVertexShader([this](Vertex& vertex) 
 		{
-			Vec4 newPos, newNormal, newWorldPos, newTexCoords;
-			newPos = projectionMatrix * viewMatrix * renderer.model * Vec4(vertex.pos.x, vertex.pos.y, vertex.pos.z);
+			Vec4 newPos, newNormal, newWorldPos;
+			newPos = renderer.projectionMatrix * renderer.viewMatrix * renderer.model * Vec4(vertex.pos.x, vertex.pos.y, vertex.pos.z);
 			newWorldPos = renderer.model * Vec4(vertex.pos.x, vertex.pos.y, vertex.pos.z);
 			renderer.worldPos = Vec3(newWorldPos.x, newWorldPos.y, newWorldPos.z);
 			newNormal = renderer.model * Vec4(vertex.normal.x, vertex.normal.y, vertex.normal.z);
@@ -141,15 +141,15 @@ ExampleApp::Open()
 		renderer.loadTextureFile("projects/Rasterizer/minecraft_dirt3.png");
 
 
-		viewMatrix = Matrix4::viewMatrix(Vec4(0, 0, 10), Vec4(0, 0, 0), Vec4(0, 1, 0)); 
-		projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 3000.0f);
+		renderer.viewMatrix = Matrix4::viewMatrix(Vec4(0, 0, 10), Vec4(0, 0, 0), Vec4(0, 1, 0)); 
+		renderer.projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 3000.0f);
 
 		renderer.framebuffer.width = width;
 		renderer.framebuffer.height = height;
 		
-		renderer.draw(renderer.addVertexIndexBuffer("engine/render/cube.obj"));
 		
 		renderer.setFramebuffer(width, height);
+		
 		
 		// create a graphics node object (screen to put texture on)
 		/*gn.setMesh("engine/render/square.obj");
@@ -169,21 +169,14 @@ ExampleApp::Run()
 {
 	while (this->window->IsOpen())
 	{
-		// set clear color to gray
-
-		
-		
-
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
-
-		//renderer.draw(renderer.addVertexIndexBuffer("engine/render/cube.obj"));
-
 		this->window->Update();
 
 		// do stuff
-		
+		renderer.draw(renderer.addVertexIndexBuffer("engine/render/cube.obj"));
+
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, renderer.framebufferID);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 		glBlitFramebuffer(0, 0, renderer.framebuffer.width, renderer.framebuffer.height, 0, 0, renderer.framebuffer.width, renderer.framebuffer.height, GL_COLOR_BUFFER_BIT, GL_LINEAR);

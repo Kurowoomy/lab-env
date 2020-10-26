@@ -474,7 +474,6 @@ void Renderer::fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, st
 	}
 	
 	// sortera varje x-vektor i allXonY
-
 	for (int i = allXonY.begin()->first; i <= allXonY.begin()->first + maxY; i++) {
 		std::sort(allXonY[i].begin(), allXonY[i].end()); // probably slows down rendering a lot, should find and save lowest and highest x instead
 		fillRow(allXonY[i][0], allXonY[i][allXonY[i].size() - 1], i);
@@ -754,13 +753,19 @@ float Renderer::min(float a, float b)
 	else
 		return b;
 }
-
 float Renderer::max(float a, float b) {
 	if (a >= b) {
 		return a;
 	}
 	else
 		return b;
+}
+float Renderer::pow(float a, float b) {
+	float result = 1;
+	for (int i = 0; i < b; i++) {
+		result *= a;
+	}
+	return result;
 }
 
 void Renderer::setTransform(Matrix4 newTransform)

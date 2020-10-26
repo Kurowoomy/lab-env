@@ -109,12 +109,12 @@ ExampleApp::Open()
 			newNormal = renderer.model * Vec4(vertex.normal.x, vertex.normal.y, vertex.normal.z);
 			vertex.normal = Vec3(newNormal.x, newNormal.y, newNormal.z);
 			vertex.uv.x = vertex.uv.x * (renderer.texture.width); // size 512, uv positions are 0 - 511
-			vertex.uv.y = vertex.uv.y * (renderer.texture.height - 1);
+			vertex.uv.y = vertex.uv.y * (renderer.texture.height);
 			vertex.pos = Vec3(newPos.x, newPos.y, newPos.z);
 
 			return newPos;
 		});
-		renderer.setPixelShader([this](Vec2 uvcoord, Vec3 normal, unsigned char* textureColor)
+		renderer.setPixelShader([this](Vec2 uvcoord, Vec3 Normal, unsigned char* textureColor)
 		{
 			Vec4 pixelColor; // object color, base
 			Vec4 result; // final color after using pixelColor and lighting together
@@ -128,9 +128,26 @@ ExampleApp::Open()
 			pixelColor.w = textureColor[i + 3];
 
 			// add lighting here
+			// ambient
+			float ambientStrength = 0.4;
+			Vec4 ambient = Vec4(ambientStrength * pl.color.x, ambientStrength * pl.color.y, ambientStrength * pl.color.z);
+
+			// diffuse
+			Vec3 normal = Normal.normalize();
+			Vec3 lightDir = (pl.position - renderer.worldPos).normalize();
+			float dotDiffuse = renderer.max(normal * lightDir, 0.0f);
+			Vec3 diffuse = pl.color * dotDiffuse;
+
+			// specular
+			Vec3 viewDir = (renderer.cameraPos - renderer.worldPos).normalize();
+			Vec3 halfwayDir = (lightDir + viewDir).normalize();
+			float dotSpecular = renderer.pow(renderer.max(normal * halfwayDir, 0.0f), 64);
+			Vec3 specular = pl.color * pl.intensity * dotSpecular;
 
 
-			result = pixelColor;
+			result = Vec4(	(specular.x + diffuse.x + ambient.x) * pixelColor.x, 
+							(specular.y + diffuse.y + ambient.y) * pixelColor.y,
+							(specular.z + diffuse.z + ambient.z) * pixelColor.z);
 			return result;
 		});
 
@@ -140,8 +157,8 @@ ExampleApp::Open()
 		
 		renderer.loadTextureFile("projects/Rasterizer/minecraft_dirt3.png");
 
-
-		renderer.viewMatrix = Matrix4::viewMatrix(Vec4(0, 0, 10), Vec4(0, 0, 0), Vec4(0, 1, 0)); 
+		renderer.cameraPos = Vec3(0, 0, 10);
+		renderer.viewMatrix = Matrix4::viewMatrix(Vec4(renderer.cameraPos.x, renderer.cameraPos.y, renderer.cameraPos.z), Vec4(0, 0, 0), Vec4(0, 1, 0));
 		renderer.projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, 0.1f, 3000.0f);
 
 		renderer.framebuffer.width = width;

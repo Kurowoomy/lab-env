@@ -46,6 +46,8 @@ public:
 	std::vector<Vec3> pixels;
 
 	Matrix4 viewMatrix, projectionMatrix;
+	Vec3 cameraPos;
+
 
 	// Reads obj file, saves all data to mesh and buffers in this Renderer object.
 	void* addVertexIndexBuffer(const char* objPath);
@@ -72,6 +74,7 @@ public:
 
 	float min(float a, float b);
 	float max(float a, float b);
+	float pow(float a, float b);
 
 	void setTransform(Matrix4 newTransform);
 	Matrix4& getTransform();

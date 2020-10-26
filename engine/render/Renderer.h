@@ -67,9 +67,11 @@ public:
 	std::vector<Vec2> createLine(int x0, int x1, int y0, int y1);
 	Vec3 convertToRasterSpace(Vec4& v);
 	void fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, std::vector<Vec2> line2);
+	void fillRow(int x0, int x1, int y);
 	void interpolate(int x, int y, int i, std::vector<int>& toErase, Vertex& v0, Vertex& v1, Vertex& v2);
 
 	float min(float a, float b);
+	float max(float a, float b);
 
 	void setTransform(Matrix4 newTransform);
 	Matrix4& getTransform();

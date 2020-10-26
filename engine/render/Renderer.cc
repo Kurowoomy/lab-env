@@ -175,7 +175,7 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 	}
 
 	// draw the lines
-	for (Vec2 linePixel : line0) {
+	/*for (Vec2 linePixel : line0) {
 		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].x = 1;
 		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].y = 0;
 		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].z = 0;
@@ -192,7 +192,7 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].y = 0;
 		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].z = 0;
 		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].w = 1;
-	}
+	}*/
 
 	// fill triangle and interpolate vertex attributes
 	// use these three only for this triangle and pixel shader
@@ -203,9 +203,9 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 	//pixels vector is ready to use for interpolation!
 	int i = 0;
 	std::vector<int> toErase;
-	if (pixels.size() == 0) {
+	/*if (pixels.size() == 0) {
 		printf("triangle not filled");
-	}
+	}*/
 	for (Vec3 pixel : pixels) {
 		// make all pos into int because they're coordinates
 		
@@ -274,7 +274,7 @@ void Renderer::draw(void* handle)
 		framebuffer.colorBuffer[i].w = 255.0f / 255;
 	}
 
-	for (int i = 0; i < 6/*buffers->indexBuffer.size()*/; i += 3) {
+	for (int i = 0; i < buffers->indexBuffer.size(); i += 3) {
 		rasterizeTriangle(buffers->vertexBuffer[i], buffers->vertexBuffer[i + 1], buffers->vertexBuffer[i + 2]);
 	}
 	std::reverse(framebuffer.colorBuffer.begin(), framebuffer.colorBuffer.end());
@@ -413,180 +413,280 @@ Vec3 Renderer::convertToRasterSpace(Vec4& v)
 
 void Renderer::fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, std::vector<Vec2> line2)
 {
-	std::vector<Vec2> lines[] = { line0, line1, line2 };
-	int shortest, longest, top1, top2, thirdLine, left, right, currentY, currentX, Xend;
-	// check which lines share the top-most vertex (lowest y) --------------------------------------
-	// assign value to top1, it's the line with lowest y
-	top1 = min(lines[0][0].y, min(lines[1][0].y, lines[2][0].y));
-	if (top1 == lines[0][0].y) 
-		top1 = 0;
-	else if (top1 == lines[1][0].y)
-		top1 = 1;
-	else if (top1 == lines[2][0].y)
-		top1 = 2;
+	// new tactic
+	// save all rows, don't bother with flat top or bottom
+	// just need to set which line is the longest, and fill row for each y pixel
 
-	// assign value to top2, lines[top1][0].y needs to be the same as lines[top2][0].y
-	switch (top1) {
-	case 0:
-		if (lines[top1][0].y == lines[1][0].y)
-			top2 = 1;
-		else
-			top2 = 2;
-		break;
-	case 1:
-		if (lines[top1][0].y == lines[0][0].y)
-			top2 = 0;
-		else
-			top2 = 2;
-		break;
-	case 2:
-		if (lines[top1][0].y == lines[0][0].y)
-			top2 = 0;
-		else
-			top2 = 1;
-		break;
-	}
-	// ---------------------------------------------------------------------------------------------
+	// map y pixel to all its x pixels
+	std::map<int, std::vector<int>> allXonY;
 
-	// check which of those two lines are shortest, lines[top1] or lines[top2] ---------------------
-	if (lines[top1][lines[top1].size() - 1].y <= lines[top2][lines[top2].size() - 1].y) {
-		shortest = top1;
-		longest = top2;
-	}
-	else {
-		shortest = top2;
-		longest = top1;
-	}
-	// ---------------------------------------------------------------------------------------------
-
-	// loop trough shortest line to fill between the two lines -------------------------------------
-	// check which line is on the left, start from there
-	// (I probably don't have to check which line is "on the left"? There's probably some better way to fill in pixels from left to right)
-	// this check is why triangles disappear "sometimes"
-	// check end of shortest line! x on longest line share the same y as the end of shortest line! except not necessarily always true..? :/
-	// for first triangle, end means the second last row for shortest line, not last row.
-	//if (lines[top1][lines[top1].size() - 1].x <= lines[shortest][lines[shortest].size() - 1].x) { // unfinished
-	//	left = top1;
-	//	right = top2;
-	//}
-	//else {
-	//	left = top2;
-	//	right = top1;
-	//}
-	if (lines[top1][lines[top1].size() - 1].x <= lines[top2][lines[top2].size() - 1].x) {
-		left = top1;
-		right = top2;
-	}
-	else {
-		left = top2;
-		right = top1;
-	}
-
-	// fill pixels until currentY is the same as the last y in shortest line
-	int leftIndex = 0, rightIndex = 0;
-	currentY = lines[left][leftIndex].y;
-	while (currentY < lines[shortest][lines[shortest].size() - 1].y)
-	{
-		// beginning of each row, find end of row on lines[right], update Xend
-		currentX = lines[left][leftIndex].x;
-		// stop incrementing index when rightIndex is at the last index or when rightIndex is on the next line
-		while (lines[right][rightIndex].y == currentY) 
-		{
-			rightIndex++;
-			if (rightIndex == lines[right].size())
-				break; // don't check while condition cause rightIndex is now out of bounds, abort loop
-		}
-		Xend = lines[right][rightIndex - 1].x;
-		
-		// beginning of each row's X, add to pixels
-		pixels.push_back(Vec3(currentX, currentY, 0));
-		while (currentX < Xend) 
-		{
-			currentX++;
-			pixels.push_back(Vec3(currentX, currentY, 0));
-		}
-
-		// end of each row, update leftIndex
-		currentY++;
-		while (lines[left][leftIndex].y != currentY) 
-		{
-			leftIndex++;
-			if (leftIndex == lines[left].size())
-				break;
+	// skapa alla y keys i allXonY
+	int dy0 = line0[line0.size() - 1].y - line0[0].y;
+	int dy1 = line1[line1.size() - 1].y - line1[0].y;
+	int dy2 = line2[line2.size() - 1].y - line2[0].y;
+	int maxY = max(dy0, max(dy1, dy2));
+	if (maxY == dy0) {
+		for (int i = line0[0].y; i <= line0[0].y + maxY; i++) {
+			allXonY.insert(std::pair<int, std::vector<int>>(i, std::vector<int>()));
 		}
 	}
-	// don't fill last row, let thirdLine do it
+	else if (maxY == dy1) {
+		for (int i = line1[0].y; i <= line1[0].y + maxY; i++) {
+			allXonY.insert(std::pair<int, std::vector<int>>(i, std::vector<int>()));
+		}
+	}
+	else if (maxY == dy2) {
+		for (int i = line2[0].y; i <= line2[0].y + maxY; i++) {
+			allXonY.insert(std::pair<int, std::vector<int>>(i, std::vector<int>()));
+		}
+	}
+	
+	// nu har vi alla y-värden i allXonY
+	// fyll map för varje linje
+	//int lowest = 0, highest = 0;
+	for (int i = 0; i < line0.size(); i++) {
+		// gör inget om det blir duplikationer av x i vektorerna. Ska ändå bara använda första och sista efter sortering.
+		allXonY[line0[i].y].push_back(line0[i].x);
+		/*if (line0[i].x < lowest) {
+			lowest = line0[i].x;
+		}
+		else if (line0[i].x > highest) {
+			highest = line0[i].x;
+		}*/
+	}
+	for (int i = 0; i < line1.size(); i++) {
+		allXonY[line1[i].y].push_back(line1[i].x);
+		/*if (line1[i].x < lowest) {
+			lowest = line1[i].x;
+		}
+		else if (line1[i].x > highest) {
+			highest = line1[i].x;
+		}*/
+	}
+	for (int i = 0; i < line2.size(); i++) {
+		allXonY[line2[i].y].push_back(line2[i].x);
+		/*if (line2[i].x < lowest) {
+			lowest = line2[i].x;
+		}
+		else if (line2[i].x > highest) {
+			highest = line2[i].x;
+		}*/
+	}
+	
+	// sortera varje x-vektor i allXonY
+
+	for (int i = allXonY.begin()->first; i <= allXonY.begin()->first + maxY; i++) {
+		std::sort(allXonY[i].begin(), allXonY[i].end()); // probably slows down rendering a lot, should find and save lowest and highest x instead
+		fillRow(allXonY[i][0], allXonY[i][allXonY[i].size() - 1], i);
+		//fillRow(lowest, highest, i);
+	}
 
 	
-	// loop through the third line -----------------------------------------------------------------
-	// find thirdLine, keep longest
-	if (longest == 0) {
-		if (shortest == 1) {
-			thirdLine = 2;
-		}
-		else {
-			thirdLine = 1;
-		}
-	}
-	else if (longest == 1) {
-		if (shortest == 0) {
-			thirdLine = 2;
-		}
-		else {
-			thirdLine = 0;
-		}
-	}
-	else if (longest == 2) {
-		if (shortest == 0) {
-			thirdLine = 1;
-		}
-		else {
-			thirdLine = 0;
-		}
-	}
-	//reset left or right to 0 depending on which is shorter, update shortest
-	if (left == shortest) {
-		left = thirdLine;
-		leftIndex = 0;
-	}
-	else {
-		right = thirdLine;
-		rightIndex = 0;
-	}
-	shortest = thirdLine;
-
-	// loop, fill rest of triangle, starting from lines[shortest][0] which is on last row of first flat bottom triangle
-	// i.e. fill the rest of the triangle, do not allow loop to skip first row this time, <= instead of <
-	while (currentY <= lines[shortest][lines[shortest].size() - 1].y)
 	{
-		// beginning of each row, find end of row on lines[right], update Xend
-		currentX = lines[left][leftIndex].x;
-		while (lines[right][rightIndex].y == currentY) 
-		{
-			rightIndex++;
-			if (rightIndex == lines[right].size())
-				break;
-		}
-		Xend = lines[right][rightIndex - 1].x;
+	//std::vector<Vec2> lines[] = { line0, line1, line2 };
+	//int shortest, longest, top1, top2, left, right, currentY, currentX, Xend;
+	//// check which lines share the top-most vertex (lowest y) --------------------------------------
+	//// assign value to top1, it's the line with lowest y
 
-		// beginning of each row's X, add to pixels
-		pixels.push_back(Vec3(currentX, currentY, 0));
-		while (currentX < Xend) 
-		{
-			currentX++;
-			pixels.push_back(Vec3(currentX, currentY, 0));
-		}
+	//// case when one top line is same y from start to end, all three lines then share the same lowest y
+	//if (lines[0][0].y == lines[1][0].y && lines[1][0].y == lines[2][0].y) {
+	//	// doesn't matter which line is longest, set longest to one of the remaining indexes after shortest is found.
+	//	if (lines[0][0].y == lines[0][lines[0].size() - 1].y) {
+	//		shortest = 0;
+	//		longest = 1;
+	//	}
+	//	else if (lines[1][0].y == lines[1][lines[1].size() - 1].y) {
+	//		shortest = 1;
+	//		longest = 0;
+	//	}
+	//	else {
+	//		shortest = 2;
+	//		longest = 0;
+	//	}
+	//}
+	//// all the other cases
+	//else {
+	//	top1 = min(lines[0][0].y, min(lines[1][0].y, lines[2][0].y));
+	//	if (top1 == lines[0][0].y)
+	//		top1 = 0;
+	//	else if (top1 == lines[1][0].y)
+	//		top1 = 1;
+	//	else if (top1 == lines[2][0].y)
+	//		top1 = 2;
 
-		// end of each row, update leftIndex
-		currentY++;
-		while (lines[left][leftIndex].y != currentY) 
-		{
-			leftIndex++;
-			if (leftIndex == lines[left].size())
-				break;
-		}
-	}
+	//	// assign value to top2, lines[top1][0].y needs to be the same as lines[top2][0].y
+	//	switch (top1) {
+	//	case 0:
+	//		if (lines[top1][0].y == lines[1][0].y)
+	//			top2 = 1;
+	//		else
+	//			top2 = 2;
+	//		break;
+	//	case 1:
+	//		if (lines[top1][0].y == lines[0][0].y)
+	//			top2 = 0;
+	//		else
+	//			top2 = 2;
+	//		break;
+	//	case 2:
+	//		if (lines[top1][0].y == lines[0][0].y)
+	//			top2 = 0;
+	//		else
+	//			top2 = 1;
+	//		break;
+	//	}
+	//	// ---------------------------------------------------------------------------------------------
+
+	//	// check which of those two lines are shortest, lines[top1] or lines[top2] ---------------------
+	//	if (lines[top1][lines[top1].size() - 1].y <= lines[top2][lines[top2].size() - 1].y) {
+	//		shortest = top1;
+	//		longest = top2;
+	//	}
+	//	else {
+	//		shortest = top2;
+	//		longest = top1;
+	//	}
+	//}
+	//// ---------------------------------------------------------------------------------------------
+
+	//// loop trough shortest line to fill between the two lines -------------------------------------
+	//// check which line is on the left, start from there
+	//// check end of shortest line! 
+	//// for first triangle, end means the second last row for shortest line, not last row. But for left/right check we can use last row.
+	//int lastY = lines[shortest][lines[shortest].size() - 1].y;
+	//// find "last" index for longest line
+	//int longLineIndex = 0;
+	//if (lines[longest][lines[longest].size() - 1].y == lastY) {
+	//	longLineIndex = lines[longest].size();
+	//}
+	//else {
+	//	while (lines[longest][longLineIndex].y <= lastY) {
+	//		longLineIndex++;
+	//	}
+	//}
+	//// (longLineIndex - 1) is the "last" index of the longest line, on the same row as last row for shortest line.
+	//if (lines[longest][longLineIndex - 1].x <= lines[shortest][lines[shortest].size() - 1].x) { // unfinished
+	//	left = longest;
+	//	right = shortest;
+	//}
+	//else {
+	//	left = shortest;
+	//	right = longest;
+	//}
+
+	//// fill pixels until currentY is the same as the last y in shortest line
+	//int leftIndex = 0, rightIndex = 0;
+	//currentY = lines[left][leftIndex].y;
+	//while (currentY < lines[shortest][lines[shortest].size() - 1].y)
+	//{
+	//	// beginning of each row, find end of row on lines[right], update Xend
+	//	currentX = lines[left][leftIndex].x;
+	//	// stop incrementing index when rightIndex is at the last index or when rightIndex is on the next line
+	//	while (lines[right][rightIndex].y == currentY) 
+	//	{
+	//		rightIndex++;
+	//		if (rightIndex == lines[right].size())
+	//			break; // don't check while condition cause rightIndex is now out of bounds, abort loop
+	//	}
+	//	Xend = lines[right][rightIndex - 1].x;
+	//	
+	//	// beginning of each row's X, add to pixels
+	//	pixels.push_back(Vec3(currentX, currentY, 0));
+	//	while (currentX < Xend) 
+	//	{
+	//		currentX++;
+	//		pixels.push_back(Vec3(currentX, currentY, 0));
+	//	}
+
+	//	// end of each row, update leftIndex
+	//	currentY++;
+	//	while (lines[left][leftIndex].y != currentY) 
+	//	{
+	//		leftIndex++;
+	//		if (leftIndex == lines[left].size())
+	//			break;
+	//	}
+	//}
+	//// don't fill last row, let thirdLine do it
+
+	//
+	//// loop through the third line -----------------------------------------------------------------
+	//// find third line, update shortest to third line, keep longest
+	//if (longest == 0) {
+	//	if (shortest == 1) {
+	//		shortest = 2;
+	//	}
+	//	else {
+	//		shortest = 1;
+	//	}
+	//}
+	//else if (longest == 1) {
+	//	if (shortest == 0) {
+	//		shortest = 2;
+	//	}
+	//	else {
+	//		shortest = 0;
+	//	}
+	//}
+	//else if (longest == 2) {
+	//	if (shortest == 0) {
+	//		shortest = 1;
+	//	}
+	//	else {
+	//		shortest = 0;
+	//	}
+	//}
+	//// it is guaranteed that longest line is on the same side as before
+	//// reset left or right to 0 depending on which is shorter
+	//if (longest == right) {
+	//	left = shortest;
+	//	leftIndex = 0;
+	//}
+	//else {
+	//	right = shortest;
+	//	rightIndex = 0;
+	//}
+
+	//// loop, fill rest of triangle, starting from lines[shortest][0] which is on last row of first flat bottom triangle
+	//// i.e. fill the rest of the triangle, do not allow loop to skip first row this time, <= instead of <
+	//while (currentY <= lines[shortest][lines[shortest].size() - 1].y)
+	//{
+	//	// beginning of each row, find end of row on lines[right], update Xend
+	//	currentX = lines[left][leftIndex].x;
+	//	while (lines[right][rightIndex].y == currentY) 
+	//	{
+	//		rightIndex++;
+	//		if (rightIndex == lines[right].size())
+	//			break;
+	//	}
+	//	Xend = lines[right][rightIndex - 1].x;
+
+	//	// beginning of each row's X, add to pixels
+	//	pixels.push_back(Vec3(currentX, currentY, 0));
+	//	while (currentX < Xend) 
+	//	{
+	//		currentX++;
+	//		pixels.push_back(Vec3(currentX, currentY, 0));
+	//	}
+
+	//	// end of each row, update leftIndex
+	//	currentY++;
+	//	while (lines[left][leftIndex].y != currentY) 
+	//	{
+	//		leftIndex++;
+	//		if (leftIndex == lines[left].size())
+	//			break;
+	//	}
+	//}
 	// ---------------------------------------------------------------------------------------------
+	}
+}
+
+void Renderer::fillRow(int x0, int x1, int y) {
+	while (x0 <= x1) {
+		pixels.push_back(Vec3(x0, y, 0));
+		x0++;
+	}
 }
 
 void Renderer::interpolate(int x, int y, int i, std::vector<int>& toErase, Vertex& v0, Vertex& v1, Vertex& v2)
@@ -649,6 +749,14 @@ void Renderer::interpolate(int x, int y, int i, std::vector<int>& toErase, Verte
 float Renderer::min(float a, float b)
 {
 	if (a <= b) {
+		return a;
+	}
+	else
+		return b;
+}
+
+float Renderer::max(float a, float b) {
+	if (a >= b) {
 		return a;
 	}
 	else

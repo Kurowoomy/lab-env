@@ -94,7 +94,6 @@ void Renderer::setFramebuffer(unsigned int width, unsigned int height)
 	framebuffer.colorBuffer.resize(framebuffer.width * framebuffer.height);
 	framebuffer.depthBuffer.resize(framebuffer.width * framebuffer.height);
 	
-	//glEnable(GL_TEXTURE_2D);
 	texture.genTexture();
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -140,19 +139,11 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 
 	// omvandla till rasteriseringskoordinater -------------------------------------------------
 	// ska vara från 0 till width och 0 till height.
-	/*if (newPos0.x == 0) {
-		printf("noll :c");
-	}*/
 	v0.pos = convertToRasterSpace(newPos0);
 	v1.pos = convertToRasterSpace(newPos1);
 	v2.pos = convertToRasterSpace(newPos2);
 
-	/*v0.pos.x = round(v0.pos.x);
-	v0.pos.y = round(v0.pos.y);
-	v1.pos.x = round(v1.pos.x);
-	v1.pos.y = round(v1.pos.y);
-	v2.pos.x = round(v2.pos.x);
-	v2.pos.y = round(v2.pos.y);*/
+	
 	// -----------------------------------------------------------------------------------------
 
 	// Måste först hitta alla pixlar man behöver jobba med för denna triangel-------------------
@@ -175,37 +166,45 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 	}
 
 	// draw the lines
-	/*for (Vec2 linePixel : line0) {
-		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].x = 1;
-		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].y = 0;
-		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].z = 0;
-		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].w = 1;
-	}
-	for (Vec2 linePixel : line1) {
-		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].x = 1;
-		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].y = 0;
-		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].z = 0;
-		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].w = 1;
-	}
-	for (Vec2 linePixel : line2) {
-		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].x = 1;
-		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].y = 0;
-		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].z = 0;
-		framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].w = 1;
-	}*/
+	//for (Vec2 linePixel : line0) {
+	//	if (linePixel.y < 0 || linePixel.y > framebuffer.height - 1 || linePixel.x < 0 || linePixel.x > framebuffer.width - 1) {
+	//		// don't fill pixel
+	//		continue;
+	//	}
+	//	framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].x = 1;
+	//	framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].y = 0;
+	//	framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].z = 0;
+	//	framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].w = 1;
+	//}
+	//for (Vec2 linePixel : line1) {
+	//	if (linePixel.y < 0 || linePixel.y > framebuffer.height - 1 || linePixel.x < 0 || linePixel.x > framebuffer.width - 1) {
+	//		// don't fill pixel
+	//		continue;
+	//	}
+	//	framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].x = 1;
+	//	framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].y = 0;
+	//	framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].z = 0;
+	//	framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].w = 1;
+	//}
+	//for (Vec2 linePixel : line2) {
+	//	if (linePixel.y < 0 || linePixel.y > framebuffer.height - 1 || linePixel.x < 0 || linePixel.x > framebuffer.width - 1) {
+	//		// don't fill pixel
+	//		continue;
+	//	}
+	//	framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].x = 1;
+	//	framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].y = 0;
+	//	framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].z = 0;
+	//	framebuffer.colorBuffer[linePixel.y * framebuffer.width + linePixel.x].w = 1;
+	//}
 
 	// fill triangle and interpolate vertex attributes
 	// use these three only for this triangle and pixel shader
 	pixels.clear();
 	normals.clear();
 	uvCoords.clear();
-	fillTriangle(line0, line1, line2); 
+	fillTriangle(line0, line1, line2);
 	//pixels vector is ready to use for interpolation!
 	int i = 0;
-	std::vector<int> toErase;
-	/*if (pixels.size() == 0) {
-		printf("triangle not filled");
-	}*/
 	for (Vec3 pixel : pixels) {
 		// make all pos into int because they're coordinates
 		
@@ -215,24 +214,29 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 		v1.pos.y = (int)v1.pos.y;
 		v2.pos.x = (int)v2.pos.x;
 		v2.pos.y = (int)v2.pos.y;*/
+		/*v0.pos.x = round(v0.pos.x);
+		v0.pos.y = round(v0.pos.y);
+		v1.pos.x = round(v1.pos.x);
+		v1.pos.y = round(v1.pos.y);
+		v2.pos.x = round(v2.pos.x);
+		v2.pos.y = round(v2.pos.y);*/
 
-		interpolate(pixel.x, pixel.y, i, toErase, v0, v1, v2);
+		interpolate(pixel.x, pixel.y, i, v0, v1, v2);
 		i++;
 	}
-	/*int index = 0;
-	for (int i : toErase) {
-		i += index;
-		pixels.erase(pixels.begin() + i);
-		index--;
-	}
-	toErase.clear();*/
 	// -----------------------------------------------------------------------------------------
 
 	// pixel shader ----------------------------------------------------------------------------
 	for (int i = 0; i < pixels.size(); i++) {
-		// depth buffer check!
+		// view frustum check
+		if (pixels[i].y < 0 || pixels[i].y > framebuffer.height - 1 || pixels[i].x < 0 || pixels[i].x > framebuffer.width - 1
+			|| pixels[i].z < near || pixels[i].z > far) {
+			// don't fill pixel
+			continue;
+		}
+		// passed view frustum check. Next: depth buffer check.
 		// dvs om currentPixel.pos.z < depthbuffer[currentPixelPos], uppdatera depthbuffer och måla pixel/lägg till pixel i colorbuffer
-		if (pixels[i].z < framebuffer.depthBuffer[framebuffer.width * pixels[i].y + pixels[i].x]) 
+		else if (pixels[i].z < framebuffer.depthBuffer[framebuffer.width * pixels[i].y + pixels[i].x]) 
 		{
 			framebuffer.depthBuffer[framebuffer.width * pixels[i].y + pixels[i].x] = pixels[i].z;
 
@@ -252,8 +256,7 @@ void Renderer::draw(void* handle)
 	Buffers* buffers = (Buffers*)handle;
 
 	for (int i = 0; i < framebuffer.depthBuffer.size(); i++) { // initialize depth buffer as far away from camera as possible
-		// ska egentligen få viewport-värdet men fixar det senare
-		framebuffer.depthBuffer[i] = 1000;
+		framebuffer.depthBuffer[i] = far;
 	}
 	for (int i = 0; i < framebuffer.colorBuffer.size(); i++) {
 		framebuffer.colorBuffer[i].x = 0;
@@ -418,35 +421,45 @@ void Renderer::fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, st
 	// just need to set which line is the longest, and fill row for each y pixel
 
 	// map y pixel to all its x pixels
-	std::map<int, std::vector<int>> allXonY;
+	std::map<int, std::pair<int, int>> allXonY;
 
 	// skapa alla y keys i allXonY
 	int dy0 = line0[line0.size() - 1].y - line0[0].y;
 	int dy1 = line1[line1.size() - 1].y - line1[0].y;
 	int dy2 = line2[line2.size() - 1].y - line2[0].y;
 	int maxY = max(dy0, max(dy1, dy2));
+	std::pair<int, int> xPair = std::make_pair<int, int> ((int)framebuffer.width, 0);
 	if (maxY == dy0) {
 		for (int i = line0[0].y; i <= line0[0].y + maxY; i++) {
-			allXonY.insert(std::pair<int, std::vector<int>>(i, std::vector<int>()));
+			allXonY.insert(std::pair<int, std::pair<int, int>>(i, xPair));
 		}
 	}
 	else if (maxY == dy1) {
 		for (int i = line1[0].y; i <= line1[0].y + maxY; i++) {
-			allXonY.insert(std::pair<int, std::vector<int>>(i, std::vector<int>()));
+			allXonY.insert(std::pair<int, std::pair<int, int>>(i, xPair));
 		}
 	}
 	else if (maxY == dy2) {
 		for (int i = line2[0].y; i <= line2[0].y + maxY; i++) {
-			allXonY.insert(std::pair<int, std::vector<int>>(i, std::vector<int>()));
+			allXonY.insert(std::pair<int, std::pair<int, int>>(i, xPair));
 		}
 	}
 	
 	// nu har vi alla y-värden i allXonY
 	// fyll map för varje linje
-	//int lowest = 0, highest = 0;
+	// behöver inte ens fylla map, behöver bara hitta lägsta och högsta x-värdet för varje rad
+	//int lowest = framebuffer.width, highest = 0;
 	for (int i = 0; i < line0.size(); i++) {
 		// gör inget om det blir duplikationer av x i vektorerna. Ska ändå bara använda första och sista efter sortering.
-		allXonY[line0[i].y].push_back(line0[i].x);
+
+		if (line0[i].x < allXonY[line0[i].y].first) {
+			allXonY[line0[i].y].first = line0[i].x;
+		}
+		if (line0[i].x > allXonY[line0[i].y].second) {
+			allXonY[line0[i].y].second = line0[i].x;
+		}
+
+
 		/*if (line0[i].x < lowest) {
 			lowest = line0[i].x;
 		}
@@ -455,7 +468,12 @@ void Renderer::fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, st
 		}*/
 	}
 	for (int i = 0; i < line1.size(); i++) {
-		allXonY[line1[i].y].push_back(line1[i].x);
+		if (line1[i].x < allXonY[line1[i].y].first) {
+			allXonY[line1[i].y].first = line1[i].x;
+		}
+		if (line1[i].x > allXonY[line1[i].y].second) {
+			allXonY[line1[i].y].second = line1[i].x;
+		}
 		/*if (line1[i].x < lowest) {
 			lowest = line1[i].x;
 		}
@@ -464,7 +482,12 @@ void Renderer::fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, st
 		}*/
 	}
 	for (int i = 0; i < line2.size(); i++) {
-		allXonY[line2[i].y].push_back(line2[i].x);
+		if (line2[i].x < allXonY[line2[i].y].first) {
+			allXonY[line2[i].y].first = line2[i].x;
+		}
+		if (line2[i].x > allXonY[line2[i].y].second) {
+			allXonY[line2[i].y].second = line2[i].x;
+		}
 		/*if (line2[i].x < lowest) {
 			lowest = line2[i].x;
 		}
@@ -475,8 +498,8 @@ void Renderer::fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, st
 	
 	// sortera varje x-vektor i allXonY
 	for (int i = allXonY.begin()->first; i <= allXonY.begin()->first + maxY; i++) {
-		std::sort(allXonY[i].begin(), allXonY[i].end()); // probably slows down rendering a lot, should find and save lowest and highest x instead
-		fillRow(allXonY[i][0], allXonY[i][allXonY[i].size() - 1], i);
+		//std::sort(allXonY[i].begin(), allXonY[i].end()); // probably slows down rendering a lot, should find and save lowest and highest x instead
+		fillRow(allXonY[i].first, allXonY[i].second, i);
 		//fillRow(lowest, highest, i);
 	}
 
@@ -688,28 +711,41 @@ void Renderer::fillRow(int x0, int x1, int y) {
 	}
 }
 
-void Renderer::interpolate(int x, int y, int i, std::vector<int>& toErase, Vertex& v0, Vertex& v1, Vertex& v2)
+void Renderer::interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& v2)
 {
 	// räkna ut vikterna för varje pixel, använd dem för att lägga till värde i alla attributes
-	float w0 = 0, w1 = 0, w2, denominator;
-	denominator = (v1.pos.y - v2.pos.y) * (v0.pos.x - v2.pos.x) + (v2.pos.x - v1.pos.x) * (v0.pos.y - v2.pos.y);
+	float w0 = 0, w1 = 0, w2;
+	Vec3 P = Vec3(x, y, 0);
+	Vec3 v0v1 = v1.pos - v0.pos;
+	Vec3 v0v2 = v2.pos - v0.pos;
+	float denominator = v0v1.crossProduct(v0v2).length(); // parallellogram for whole triangle
+	/*denominator = (v1.pos.y - v2.pos.y) * (v0.pos.x - v2.pos.x) + (v2.pos.x - v1.pos.x) * (v0.pos.y - v2.pos.y);*/
 	if (denominator == 0) {
 		//printf("denominator is zero somebody do something about it D:");
 	}
 	else {
-		w0 = ((v1.pos.y - v2.pos.y) * (x - v2.pos.x) + (v2.pos.x - v1.pos.x) * (y - v2.pos.y)) / denominator;
-		w1 = ((v2.pos.y - v0.pos.y) * (x - v2.pos.x) + (v0.pos.x - v2.pos.x) * (y - v2.pos.y)) / denominator;
+		Vec3 v1v2 = v2.pos - v1.pos;
+		Vec3 v1toP = P - v1.pos;
+		w0 = v1v2.crossProduct(v1toP).length() / denominator;
+
+		Vec3 v0v2 = v2.pos - v0.pos;
+		Vec3 v0toP = P - v0.pos;
+		w1 = v0v2.crossProduct(v0toP).length() / denominator;
+
+		/*w0 = ((v1.pos.y - v2.pos.y) * (x - v2.pos.x) + (v2.pos.x - v1.pos.x) * (y - v2.pos.y)) / denominator;
+		w1 = ((v2.pos.y - v0.pos.y) * (x - v2.pos.x) + (v0.pos.x - v2.pos.x) * (y - v2.pos.y)) / denominator;*/
 	}
 	w2 = 1 - w0 - w1;
-	// w2 blir negativ ibland pga väldigt små skillnader mellan w0 och w1.
-	// om skillnaden är mindre än 1.0e-05, gör w2 till 0.
-	//if (w2 < 0) {
-	//	//w2 = 0;
-	//}
+	/*if (w2 < 0) w2 = 0;
+	else if (w2 > 1) w2 = 1;
+	if (w1 < 0) w1 = 0;
+	else if (w1 > 1) w1 = 1;
+	if (w0 < 0) w0 = 0;
+	else if (w0 > 1) w0 = 1;*/
 
-	//if (w0 < 0 || w1 < 0 || w2 < 0) {
-	//	//toErase.push_back(i);
-	//}
+	if (w0 < 0 || w1 < 0 || w2 < 0) {
+		printf(":(");
+	}
 	//else {
 		Vec3 normal;
 		Vec2 uvcoord;
@@ -741,7 +777,8 @@ void Renderer::interpolate(int x, int y, int i, std::vector<int>& toErase, Verte
 		uvCoords.push_back(uvcoord);
 
 		// add current triangle pixels to depthbuffer
-		pixels[i].z = w0 * v0.pos.z + w1 * v1.pos.z + w2 * v2.pos.z;
+		pixels[i].z = w0 * v0.pos.z + w1 * v1.pos.z + w2 * v2.pos.z; // TODO: tror interpoleringen skapar problemet.
+		// kan fortfarande vara "precisionsfelet" som ligger bakom
 	//}
 }
 

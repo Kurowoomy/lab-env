@@ -47,6 +47,7 @@ public:
 
 	Matrix4 viewMatrix, projectionMatrix;
 	Vec3 cameraPos;
+	float near = 0.1, far = 3000;
 
 
 	// Reads obj file, saves all data to mesh and buffers in this Renderer object.
@@ -70,7 +71,7 @@ public:
 	Vec3 convertToRasterSpace(Vec4& v);
 	void fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, std::vector<Vec2> line2);
 	void fillRow(int x0, int x1, int y);
-	void interpolate(int x, int y, int i, std::vector<int>& toErase, Vertex& v0, Vertex& v1, Vertex& v2);
+	void interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& v2);
 
 	float min(float a, float b);
 	float max(float a, float b);

@@ -37,18 +37,11 @@ public:
 
 private:
 
-	GLuint program;
-	GLuint vertexShader;
-	GLuint pixelShader;
-	GLuint triangle;
 	Display::Window* window;
 
 	// my own members
-	GraphicsNode gn;
 	PointLight pl;
 	Renderer renderer;
-	Matrix4 viewMatrix;
-	Matrix4 projectionMatrix;
 	// for moving, rotating with input
 	bool hasPressedLeft = false, isRotating = false, hasPressedKey = false;
 	float rotationSpeed = 0.01, moveSpeed = 1;

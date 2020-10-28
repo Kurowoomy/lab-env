@@ -63,7 +63,6 @@ ExampleApp::Open()
 				hasPressedLeft = true;
 				window->SetMouseMoveFunction([this](float64 x, float64 y)
 				{
-						
 					if (!isRotating) {
 						isRotating = true;
 						lastRadX = x;
@@ -94,7 +93,6 @@ ExampleApp::Open()
 					// do nothing
 				});
 			}
-				
 		}
 	});
 
@@ -105,30 +103,31 @@ ExampleApp::Open()
 			Vec4 newPos, newNormal, newWorldPos;
 			newPos = renderer.projectionMatrix * renderer.viewMatrix * renderer.model * Vec4(vertex.pos.x, vertex.pos.y, vertex.pos.z);
 			newWorldPos = renderer.model * Vec4(vertex.pos.x, vertex.pos.y, vertex.pos.z);
-			renderer.worldPos = Vec3(newWorldPos.x, newWorldPos.y, newWorldPos.z);
 			newNormal = renderer.model * Vec4(vertex.normal.x, vertex.normal.y, vertex.normal.z);
+			
 			vertex.normal = Vec3(newNormal.x, newNormal.y, newNormal.z);
 			vertex.uv.x = vertex.uv.x * (renderer.texture.width); // size 512, uv positions are 0 - 511
 			vertex.uv.y = vertex.uv.y * (renderer.texture.height);
-			vertex.pos = Vec3(newPos.x, newPos.y, newPos.z);
+			
+			renderer.worldPos = Vec3(newWorldPos.x, newWorldPos.y, newWorldPos.z);
 
 			return newPos;
 		});
 		renderer.setPixelShader([this](Vec2 uvcoord, Vec3 Normal, unsigned char* textureColor)
 		{
-			Vec4 pixelColor; // object color, base
-			Vec4 result; // final color after using pixelColor and lighting together
-
+			// set base color for pixel ---------------------------------------------------------------------
+			Vec4 pixelColor;
 			// find position i in textureColor[i], use uvcoord.x and uvcoord.y
-			//för varje y har det gått textureWidth i pixlar
+			// we traverse textureWidth pixels for every y
 			int i = renderer.texture.width * uvcoord.y * renderer.texture.comp + uvcoord.x * renderer.texture.comp;
 			pixelColor.x = textureColor[i];
 			pixelColor.y = textureColor[i + 1];
 			pixelColor.z = textureColor[i + 2];
 			pixelColor.w = textureColor[i + 3];
-			//pixelColor = Vec4(100, 100, 100);
+			//pixelColor = Vec4(100, 100, 100); // plain color instead of texture
+			//-----------------------------------------------------------------------------------------------
 
-			// add lighting here
+			// add lighting ---------------------------------------------------------------------------------
 			// ambient
 			float ambientStrength = 0.4;
 			Vec4 ambient = Vec4(ambientStrength * pl.color.x, ambientStrength * pl.color.y, ambientStrength * pl.color.z);
@@ -144,35 +143,28 @@ ExampleApp::Open()
 			Vec3 halfwayDir = (lightDir + viewDir).normalize();
 			float dotSpecular = renderer.pow(renderer.max(normal * halfwayDir, 0.0f), 64);
 			Vec3 specular = pl.color * pl.intensity * dotSpecular;
+			//-----------------------------------------------------------------------------------------------
 
-
-			result = Vec4(	(specular.x + diffuse.x + ambient.x) * pixelColor.x, 
-							(specular.y + diffuse.y + ambient.y) * pixelColor.y,
-							(specular.z + diffuse.z + ambient.z) * pixelColor.z);
-			return result;
+			// multiply pixelColor with lighting to get final color
+			return Vec4((specular.x + diffuse.x + ambient.x) * pixelColor.x,
+						(specular.y + diffuse.y + ambient.y) * pixelColor.y,
+						(specular.z + diffuse.z + ambient.z) * pixelColor.z);
 		});
 
+		// framebuffer setup ----------------------------------------------------------------------------
 		int width, height;
 		this->window->GetSize(width, height);
-		
-		
+
+		renderer.framebuffer.width = width;
+		renderer.framebuffer.height = height;		
+		renderer.setFramebuffer(width, height);
+
 		renderer.loadTextureFile("projects/Rasterizer/aqua.png");
 
 		renderer.cameraPos = Vec3(0, 0, 10);
 		renderer.viewMatrix = Matrix4::viewMatrix(Vec4(renderer.cameraPos.x, renderer.cameraPos.y, renderer.cameraPos.z), Vec4(0, 0, 0), Vec4(0, 1, 0));
 		renderer.projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, renderer.near, renderer.far);
-
-		renderer.framebuffer.width = width;
-		renderer.framebuffer.height = height;
-		
-		
-		renderer.setFramebuffer(width, height);
-		
-		
-		// create a graphics node object (screen to put texture on)
-		/*gn.setMesh("engine/render/square.obj");
-		gn.setShader("engine/render/vs.txt", "engine/render/fs.txt");
-		gn.setTexture(renderer.texture);*/
+		//-----------------------------------------------------------------------------------------------
 
 		return true;
 	}
@@ -187,9 +179,6 @@ ExampleApp::Run()
 {
 	while (this->window->IsOpen())
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
 		this->window->Update();
 
 		// do stuff
@@ -199,10 +188,8 @@ ExampleApp::Run()
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 		glBlitFramebuffer(0, 0, renderer.framebuffer.width, renderer.framebuffer.height, 0, 0, renderer.framebuffer.width, renderer.framebuffer.height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-
 		this->window->SwapBuffers();
 	}
-	
 }
 
 } // namespace Example

@@ -1,12 +1,11 @@
 #pragma once
 
 #include "render/MeshResource.h"
-#include <fstream>
 #include <functional>
 #include "render/stb_image.h"
-#include <algorithm>
+//#include <algorithm>
 #include "TextureResource.h"
-#include "ShaderObject.h"
+#include <map>
 
 
 struct Vertex {
@@ -37,7 +36,7 @@ public:
 	Vec3 cameraPos, worldPos;
 	float near = 0.1, far = 3000;
 	
-	//
+	// reset these three for every triangle rasterization
 	std::vector<Vec3> normals;
 	std::vector<Vec2> uvCoords;
 	std::vector<Vec3> pixels;

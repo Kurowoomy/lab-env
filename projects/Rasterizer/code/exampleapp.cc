@@ -159,7 +159,7 @@ ExampleApp::Open()
 		renderer.framebuffer.height = height;		
 		renderer.setFramebuffer(width, height);
 
-		renderer.loadTextureFile("projects/Rasterizer/aqua.png");
+		renderer.loadTextureFile("projects/Rasterizer/minecraft_dirt.png");
 
 		renderer.cameraPos = Vec3(0, 0, 10);
 		renderer.viewMatrix = Matrix4::viewMatrix(Vec4(renderer.cameraPos.x, renderer.cameraPos.y, renderer.cameraPos.z), Vec4(0, 0, 0), Vec4(0, 1, 0));
@@ -182,7 +182,7 @@ ExampleApp::Run()
 		this->window->Update();
 
 		// do stuff
-		renderer.draw(renderer.addVertexIndexBuffer("engine/render/dragon.obj"));
+		renderer.draw(renderer.addVertexIndexBuffer("engine/render/cube.obj"));
 
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, renderer.framebufferID);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

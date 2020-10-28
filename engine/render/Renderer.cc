@@ -2,7 +2,6 @@
 #include "Renderer.h"
 
 
-
 void* Renderer::addVertexIndexBuffer(const char* objPath)
 {
 	if (buffers.indexBuffer.empty()) {
@@ -473,7 +472,7 @@ void Renderer::interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& 
 	}
 	w2 = 1 - w0 - w1;
 
-	// precision error 
+	// precision error fix
 	if (w1 >= 1) {
 		w2 = 0;
 		w0 = 0;
@@ -489,86 +488,36 @@ void Renderer::interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& 
 		w0 = 0;
 		w1 = 0;
 	}
-	//if (w2 < 0) w2 = 0;
-	////else if (w2 > 1) w2 = 1;
-	//if (w1 < 0) w1 = 0;
-	////else if (w1 > 1) w1 = 1;
-	//if (w0 < 0) w0 = 0;
-	////else if (w0 > 1) w0 = 1;
-	//Vec3 w = Vec3(w0, w1, w2);
-	//w = w.normalize();
+	
+	Vec3 normal;
+	Vec2 uvcoord;
 
-	/*if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
-		printf(":(");
+	// interpolate normal values
+	normal.x = w0 * v0.normal.x + w1 * v1.normal.x + w2 * v2.normal.x;
+	normal.y = w0 * v0.normal.y + w1 * v1.normal.y + w2 * v2.normal.y;
+	normal.z = w0 * v0.normal.z + w1 * v1.normal.z + w2 * v2.normal.z;
+	normals.push_back(normal);
+
+	// interpolate uvcoord values, need to be integers for texture coordinates
+	uvcoord.x = round(w0 * v0.uv.x + w1 * v1.uv.x + w2 * v2.uv.x);
+	// make sure there are no precision errors
+	if (uvcoord.x < 0) { // händer vid transformering
+		uvcoord.x = 0;
 	}
-	if (w0 < 0 || w1 < 0 || w2 < 0) {
-		printf(":(");
-	}*/
-	//else {
-		Vec3 normal;
-		Vec2 uvcoord;
+	if (uvcoord.x > texture.width) { // händer vid rotation
+		uvcoord.x = texture.width;
+	}
+	uvcoord.y = round(w0 * v0.uv.y + w1 * v1.uv.y + w2 * v2.uv.y);
+	if (uvcoord.y < 0) { // händer vid transformering
+		uvcoord.y = 0;
+	}
+	if (uvcoord.y > texture.width) { // händer vid rotation
+		uvcoord.y = texture.width; 
+	}
+	uvCoords.push_back(uvcoord);
 
-		//normal.x = w.x * v0.normal.x + w.y * v1.normal.x + w.z * v2.normal.x;
-		//normal.y = w.x * v0.normal.y + w.y * v1.normal.y + w.z * v2.normal.y;
-		//normal.z = w.x * v0.normal.z + w.y * v1.normal.z + w.z * v2.normal.z;
-		//normals.push_back(normal);
-
-		//// interpolate uvcoord values, need to be integers for texture coordinates
-		//uvcoord.x = round(w.x * v0.uv.x + w.y * v1.uv.x + w.z * v2.uv.x);
-		//if (uvcoord.x < 0) { // händer vid transformering
-		//	//printf("what why is it negative D:");
-		//	uvcoord.x = 0;
-		//}
-		//if (uvcoord.x > texture.width) { // händer vid rotation
-		//	//printf("uv out of bounds");
-		//	uvcoord.x = texture.width;
-		//}
-		//uvcoord.y = round(w.x * v0.uv.y + w.y * v1.uv.y + w.z * v2.uv.y);
-		//if (uvcoord.y < 0) { // händer vid transformering
-		//	//printf("what why is it negative D:");
-		//	uvcoord.y = 0;
-		//}
-		//if (uvcoord.y > texture.width) { // händer vid rotation
-		//	//printf("uv out of bounds");
-		//	uvcoord.y = texture.width;
-		//}
-		//uvCoords.push_back(uvcoord);
-
-		//// add current triangle pixels to depthbuffer
-		//pixels[i].z = w.x * v0.pos.z + w.y * v1.pos.z + w.z * v2.pos.z; // TODO: tror interpoleringen skapar problemet.
-		//// kan fortfarande vara "precisionsfelet" som ligger bakom
-
-		// interpolate normal values
-		normal.x = w0 * v0.normal.x + w1 * v1.normal.x + w2 * v2.normal.x;
-		normal.y = w0 * v0.normal.y + w1 * v1.normal.y + w2 * v2.normal.y;
-		normal.z = w0 * v0.normal.z + w1 * v1.normal.z + w2 * v2.normal.z;
-		normals.push_back(normal);
-
-		// interpolate uvcoord values, need to be integers for texture coordinates
-		uvcoord.x = round(w0 * v0.uv.x + w1 * v1.uv.x + w2 * v2.uv.x);
-		if (uvcoord.x < 0) { // händer vid transformering
-			//printf("what why is it negative D:");
-			uvcoord.x = 0;
-		}
-		if (uvcoord.x > texture.width) { // händer vid rotation
-			//printf("uv out of bounds");
-			uvcoord.x = texture.width;
-		}
-		uvcoord.y = round(w0 * v0.uv.y + w1 * v1.uv.y + w2 * v2.uv.y);
-		if (uvcoord.y < 0) { // händer vid transformering
-			//printf("what why is it negative D:");
-			uvcoord.y = 0;
-		}
-		if (uvcoord.y > texture.width) { // händer vid rotation
-			//printf("uv out of bounds");
-			uvcoord.y = texture.width; 
-		}
-		uvCoords.push_back(uvcoord);
-
-		// add current triangle pixels to depthbuffer
-		pixels[i].z = w0 * v0.pos.z + w1 * v1.pos.z + w2 * v2.pos.z; // TODO: tror interpoleringen skapar problemet.
-		// kan fortfarande vara "precisionsfelet" som ligger bakom
-	//}
+	// interpolate depth values, add to depth buffer
+	pixels[i].z = w0 * v0.pos.z + w1 * v1.pos.z + w2 * v2.pos.z;
 }
 
 float Renderer::min(float a, float b)
@@ -579,14 +528,16 @@ float Renderer::min(float a, float b)
 	else
 		return b;
 }
-float Renderer::max(float a, float b) {
+float Renderer::max(float a, float b) 
+{
 	if (a >= b) {
 		return a;
 	}
 	else
 		return b;
 }
-float Renderer::pow(float a, float b) {
+float Renderer::pow(float a, float b) 
+{
 	float result = 1;
 	for (int i = 0; i < b; i++) {
 		result *= a;
@@ -594,12 +545,10 @@ float Renderer::pow(float a, float b) {
 	return result;
 }
 
-void Renderer::setTransform(Matrix4 newTransform)
-{
+void Renderer::setTransform(Matrix4 newTransform) {
 	model = newTransform;
 }
-Matrix4& Renderer::getTransform()
-{
+Matrix4& Renderer::getTransform() {
 	return model;
 }
 

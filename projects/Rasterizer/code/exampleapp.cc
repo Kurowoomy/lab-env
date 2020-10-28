@@ -121,12 +121,12 @@ ExampleApp::Open()
 
 			// find position i in textureColor[i], use uvcoord.x and uvcoord.y
 			//för varje y har det gått textureWidth i pixlar
-			/*int i = renderer.texture.width * uvcoord.y * renderer.texture.comp + uvcoord.x * renderer.texture.comp;
+			int i = renderer.texture.width * uvcoord.y * renderer.texture.comp + uvcoord.x * renderer.texture.comp;
 			pixelColor.x = textureColor[i];
 			pixelColor.y = textureColor[i + 1];
 			pixelColor.z = textureColor[i + 2];
-			pixelColor.w = textureColor[i + 3];*/
-			pixelColor = Vec4(100, 100, 100);
+			pixelColor.w = textureColor[i + 3];
+			//pixelColor = Vec4(100, 100, 100);
 
 			// add lighting here
 			// ambient
@@ -156,9 +156,9 @@ ExampleApp::Open()
 		this->window->GetSize(width, height);
 		
 		
-		renderer.loadTextureFile("projects/Rasterizer/pure_aqua.png");
+		renderer.loadTextureFile("projects/Rasterizer/aqua.png");
 
-		renderer.cameraPos = Vec3(0, 0, 5);
+		renderer.cameraPos = Vec3(0, 0, 10);
 		renderer.viewMatrix = Matrix4::viewMatrix(Vec4(renderer.cameraPos.x, renderer.cameraPos.y, renderer.cameraPos.z), Vec4(0, 0, 0), Vec4(0, 1, 0));
 		renderer.projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, renderer.near, renderer.far);
 
@@ -193,7 +193,7 @@ ExampleApp::Run()
 		this->window->Update();
 
 		// do stuff
-		renderer.draw(renderer.addVertexIndexBuffer("engine/render/cube.obj"));
+		renderer.draw(renderer.addVertexIndexBuffer("engine/render/dragon.obj"));
 
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, renderer.framebufferID);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

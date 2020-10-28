@@ -264,7 +264,7 @@ void Renderer::draw(void* handle)
 		framebuffer.colorBuffer[i].z = 0;
 		framebuffer.colorBuffer[i].w = 1;
 	}
-	for (int i = 0; i < 1000; i++) {
+	for (int i = 0; i < 3000; i++) {
 		framebuffer.colorBuffer[i].x = 0;
 		framebuffer.colorBuffer[i].y = 255 / 255;
 		framebuffer.colorBuffer[i].z = 0;
@@ -280,7 +280,7 @@ void Renderer::draw(void* handle)
 	for (int i = 0; i < buffers->indexBuffer.size(); i += 3) {
 		rasterizeTriangle(buffers->vertexBuffer[i], buffers->vertexBuffer[i + 1], buffers->vertexBuffer[i + 2]);
 	}
-	std::reverse(framebuffer.colorBuffer.begin(), framebuffer.colorBuffer.end());
+	//std::reverse(framebuffer.colorBuffer.begin(), framebuffer.colorBuffer.end());
 
 	// colorbuffer should now be filled and ready to render to frame
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebufferID);
@@ -404,7 +404,7 @@ Vec3 Renderer::convertToRasterSpace(Vec4& v)
 		printf("w is 0 :( \n");
 	}
 
-	Vec2 windowSpacePos = Vec2((pos.x + 1) / 2 * framebuffer.width, (1 - pos.y) / 2 * framebuffer.height);
+	Vec2 windowSpacePos = Vec2((pos.x + 1) / 2 * framebuffer.width, (pos.y + 1) / 2 * framebuffer.height);
 	/*if (windowSpacePos.x == 512) {
 		printf("??");
 	}*/
@@ -718,7 +718,11 @@ void Renderer::interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& 
 	Vec3 P = Vec3(x, y, 0);
 	Vec3 v0v1 = v1.pos - v0.pos;
 	Vec3 v0v2 = v2.pos - v0.pos;
-	float denominator = v0v1.crossProduct(v0v2).length(); // parallellogram for whole triangle
+
+	Vec3 v0v1_xy = Vec3(v0v1.x, v0v1.y, 0);
+	Vec3 v0v2_xy = Vec3(v0v2.x, v0v2.y, 0);
+
+	float denominator = v0v1_xy.crossProduct(v0v2_xy).length(); // parallellogram for whole triangle
 	/*denominator = (v1.pos.y - v2.pos.y) * (v0.pos.x - v2.pos.x) + (v2.pos.x - v1.pos.x) * (v0.pos.y - v2.pos.y);*/
 	if (denominator == 0) {
 		//printf("denominator is zero somebody do something about it D:");
@@ -726,29 +730,86 @@ void Renderer::interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& 
 	else {
 		Vec3 v1v2 = v2.pos - v1.pos;
 		Vec3 v1toP = P - v1.pos;
-		w0 = v1v2.crossProduct(v1toP).length() / denominator;
 
-		Vec3 v0v2 = v2.pos - v0.pos;
+		Vec3 v1v2_xy = Vec3(v1v2.x, v1v2.y, 0);
+		Vec3 v1toP_xy = Vec3(v1toP.x, v1toP.y, 0);
+		w0 = v1v2_xy.crossProduct(v1toP_xy).length() / denominator;
+
+		v0v2 = v2.pos - v0.pos;
 		Vec3 v0toP = P - v0.pos;
-		w1 = v0v2.crossProduct(v0toP).length() / denominator;
+
+		Vec3 v0v2_xy = Vec3(v0v2.x, v0v2.y, 0);
+		Vec3 v0toP_xy = Vec3(v0toP.x, v0toP.y, 0);
+		w1 = v0v2_xy.crossProduct(v0toP_xy).length() / denominator;
 
 		/*w0 = ((v1.pos.y - v2.pos.y) * (x - v2.pos.x) + (v2.pos.x - v1.pos.x) * (y - v2.pos.y)) / denominator;
 		w1 = ((v2.pos.y - v0.pos.y) * (x - v2.pos.x) + (v0.pos.x - v2.pos.x) * (y - v2.pos.y)) / denominator;*/
 	}
 	w2 = 1 - w0 - w1;
-	/*if (w2 < 0) w2 = 0;
-	else if (w2 > 1) w2 = 1;
-	if (w1 < 0) w1 = 0;
-	else if (w1 > 1) w1 = 1;
-	if (w0 < 0) w0 = 0;
-	else if (w0 > 1) w0 = 1;*/
+	if (w1 >= 1) {
+		w2 = 0;
+		w0 = 0;
+		w1 = 1;
+	}
+	if (w0 >= 1) {
+		w0 = 1;
+		w1 = 0;
+		w2 = 0;
+	}
+	if (w2 >= 1) {
+		w2 = 1;
+		w0 = 0;
+		w1 = 0;
+	}
+	//if (w2 < 0) w2 = 0;
+	////else if (w2 > 1) w2 = 1;
+	//if (w1 < 0) w1 = 0;
+	////else if (w1 > 1) w1 = 1;
+	//if (w0 < 0) w0 = 0;
+	////else if (w0 > 1) w0 = 1;
+	//Vec3 w = Vec3(w0, w1, w2);
+	//w = w.normalize();
 
-	if (w0 < 0 || w1 < 0 || w2 < 0) {
+	/*if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
 		printf(":(");
 	}
+	if (w0 < 0 || w1 < 0 || w2 < 0) {
+		printf(":(");
+	}*/
 	//else {
 		Vec3 normal;
 		Vec2 uvcoord;
+
+		//normal.x = w.x * v0.normal.x + w.y * v1.normal.x + w.z * v2.normal.x;
+		//normal.y = w.x * v0.normal.y + w.y * v1.normal.y + w.z * v2.normal.y;
+		//normal.z = w.x * v0.normal.z + w.y * v1.normal.z + w.z * v2.normal.z;
+		//normals.push_back(normal);
+
+		//// interpolate uvcoord values, need to be integers for texture coordinates
+		//uvcoord.x = round(w.x * v0.uv.x + w.y * v1.uv.x + w.z * v2.uv.x);
+		//if (uvcoord.x < 0) { // händer vid transformering
+		//	//printf("what why is it negative D:");
+		//	uvcoord.x = 0;
+		//}
+		//if (uvcoord.x > texture.width) { // händer vid rotation
+		//	//printf("uv out of bounds");
+		//	uvcoord.x = texture.width;
+		//}
+		//uvcoord.y = round(w.x * v0.uv.y + w.y * v1.uv.y + w.z * v2.uv.y);
+		//if (uvcoord.y < 0) { // händer vid transformering
+		//	//printf("what why is it negative D:");
+		//	uvcoord.y = 0;
+		//}
+		//if (uvcoord.y > texture.width) { // händer vid rotation
+		//	//printf("uv out of bounds");
+		//	uvcoord.y = texture.width;
+		//}
+		//uvCoords.push_back(uvcoord);
+
+		//// add current triangle pixels to depthbuffer
+		//pixels[i].z = w.x * v0.pos.z + w.y * v1.pos.z + w.z * v2.pos.z; // TODO: tror interpoleringen skapar problemet.
+		//// kan fortfarande vara "precisionsfelet" som ligger bakom
+
 		// interpolate normal values
 		normal.x = w0 * v0.normal.x + w1 * v1.normal.x + w2 * v2.normal.x;
 		normal.y = w0 * v0.normal.y + w1 * v1.normal.y + w2 * v2.normal.y;

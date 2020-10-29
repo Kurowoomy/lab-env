@@ -160,10 +160,50 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 	normals.clear();
 	uvCoords.clear();
 	fillTriangle(line0, line1, line2);
+
+	// find pixel vertices
+	Vec3 vertexPos0, vertexPos1, vertexPos2;
+	// punkten som line0 och line2 har gemensamt är vertexPos0.
+	if (line0[0] == line2[0] || line0[0] == line2[line2.size() - 1]) {
+		vertexPos0 = Vec3(line0[0].x, line0[0].y, 0);
+
+		vertexPos1 = Vec3(line0[line0.size() - 1].x, line0[line0.size() - 1].y, 0);
+	}
+	else if (line0[line0.size() - 1] == line2[0] || line0[line0.size() - 1] == line2[line2.size() - 1]) {
+		vertexPos0 = Vec3(line0[line0.size() - 1].x, line0[line0.size() - 1].y, 0);
+
+		vertexPos1 = Vec3(line0[0].x, line0[0].y, 0);
+	}
+	if (vertexPos0 == line2[0]) {
+		vertexPos2 = Vec3(line2[line2.size() - 1].x, line2[line2.size() - 1].y, 0);
+	}
+	else if (vertexPos0 == line2[line2.size() - 1]) {
+		vertexPos2 = Vec3(line2[0].x, line2[0].y, 0);
+	}
+	//// pos0 and pos2
+	//if (line0[0] == line1[0] || line0[0] == line1[line1.size() - 1]) {
+	//	vertexPos0 = Vec3(line0[0].x, line0[0].y, 0);
+	//	
+	//	vertexPos2 = Vec3(line0[line0.size() - 1].x, line0[line0.size() - 1].y, 0);
+	//}
+	//else if (line0[line0.size() - 1] == line1[0] || line0[line0.size() - 1] == line1[line1.size() - 1]) {
+	//	vertexPos0 = Vec3(line0[line0.size() - 1].x, line0[line0.size() - 1].y, 0);
+
+	//	vertexPos2 = Vec3(line0[0].x, line0[0].y, 0);
+	//}
+	//// pos1
+	//if (line1[0] == Vec2(vertexPos0.x, vertexPos0.y)) {
+	//	vertexPos1 = Vec3(line1[line1.size() - 1].x, line1[line1.size() - 1].y, 0);
+	//}
+	//else if (line1[line1.size() - 1] == Vec2(vertexPos0.x, vertexPos0.y)) {
+	//	vertexPos1 = Vec3(line1[0].x, line1[0].y, 0);
+	//}
+
+
 	//pixels vector is ready to use for interpolation!
 	int i = 0;
 	for (Vec3 pixel : pixels) {
-		interpolate(pixel.x, pixel.y, i, v0, v1, v2);
+		interpolate(pixel.x, pixel.y, i, v0, v1, v2, vertexPos0, vertexPos1, vertexPos2);
 		i++;
 	}
 	// ------------------------------------------------------------------------------------------------
@@ -440,36 +480,46 @@ void Renderer::fillRow(int x0, int x1, int y) {
 	}
 }
 
-void Renderer::interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& v2)
+void Renderer::interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& v2, Vec3 pos0, Vec3 pos1, Vec3 pos2)
 {
 	// calculate the weights for each pixel, use them to add value to all attributes
 	float w0 = 0, w1 = 0, w2;
 	Vec3 P = Vec3(x, y, 0);
-	Vec3 v0v1 = v1.pos - v0.pos;
-	Vec3 v0v2 = v2.pos - v0.pos;
+
+	Vec3 v0v1 = pos1 - pos0;
+	Vec3 v0v2 = pos2 - pos0;
+	/*Vec3 v0v1 = v1.pos - v0.pos;
+	Vec3 v0v2 = v2.pos - v0.pos;*/
 
 	Vec3 v0v1_xy = Vec3(v0v1.x, v0v1.y, 0);
 	Vec3 v0v2_xy = Vec3(v0v2.x, v0v2.y, 0);
 
+	//Vec3 N = v0v1_xy.crossProduct(v0v2_xy);
+	//float denominator = N * N;
 	float denominator = v0v1_xy.crossProduct(v0v2_xy).length(); // parallellogram for whole triangle
 	if (denominator == 0) {
-		printf("denominator is zero somebody do something about it D:");
+		//printf("denominator is zero somebody do something about it D:");
 	}
 	else {
-		Vec3 v1v2 = v2.pos - v1.pos;
-		Vec3 v1toP = P - v1.pos;
+		Vec3 v1v2 = pos2 - pos1;
+		Vec3 v1toP = P - pos1;
+		/*Vec3 v1v2 = v2.pos - v1.pos;
+		Vec3 v1toP = P - v1.pos;*/
 
 		Vec3 v1v2_xy = Vec3(v1v2.x, v1v2.y, 0);
 		Vec3 v1toP_xy = Vec3(v1toP.x, v1toP.y, 0);
 		w0 = v1v2_xy.crossProduct(v1toP_xy).length() / denominator;
 
-		v0v2 = v2.pos - v0.pos;
-		Vec3 v0toP = P - v0.pos;
+		v0v2 = pos2 - pos0;
+		Vec3 v0toP = P - pos0;
+		/*v0v2 = v2.pos - v0.pos;
+		Vec3 v0toP = P - v0.pos;*/
 
 		Vec3 v0v2_xy = Vec3(v0v2.x, v0v2.y, 0);
 		Vec3 v0toP_xy = Vec3(v0toP.x, v0toP.y, 0);
 		w1 = v0v2_xy.crossProduct(v0toP_xy).length() / denominator;
 	}
+
 	w2 = 1 - w0 - w1;
 
 	// precision error fix
@@ -487,6 +537,9 @@ void Renderer::interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& 
 		w2 = 1;
 		w0 = 0;
 		w1 = 0;
+	}
+	if (w0 < 0 || w1 < 0 || w2 < 0) {
+		//printf(":(");
 	}
 	
 	Vec3 normal;

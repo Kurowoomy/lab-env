@@ -142,13 +142,22 @@ ExampleApp::Open()
 			Vec3 viewDir = (renderer.cameraPos - renderer.worldPos).normalize();
 			Vec3 halfwayDir = (lightDir + viewDir).normalize();
 			float dotSpecular = renderer.pow(renderer.max(normal * halfwayDir, 0.0f), 64);
-			Vec3 specular = pl.color * pl.intensity * dotSpecular;
+			Vec3 specular = (pl.color * pl.intensity) * dotSpecular;
 			//-----------------------------------------------------------------------------------------------
 
 			// multiply pixelColor with lighting to get final color
-			return Vec4((specular.x + diffuse.x + ambient.x) * pixelColor.x,
-						(specular.y + diffuse.y + ambient.y) * pixelColor.y,
-						(specular.z + diffuse.z + ambient.z) * pixelColor.z);
+			Vec4 result;
+			if (normal * lightDir > 0) {
+				result = Vec4(  (specular.x + diffuse.x + ambient.x) * pixelColor.x,
+								(specular.y + diffuse.y + ambient.y) * pixelColor.y,
+							    (specular.z + diffuse.z + ambient.z) * pixelColor.z);
+			}
+			else {
+				result = Vec4(  (diffuse.x + ambient.x) * pixelColor.x,
+								(diffuse.y + ambient.y) * pixelColor.y,
+								(diffuse.z + ambient.z) * pixelColor.z);
+			}
+			return result;
 		});
 
 		// framebuffer setup ----------------------------------------------------------------------------
@@ -159,9 +168,9 @@ ExampleApp::Open()
 		renderer.framebuffer.height = height;		
 		renderer.setFramebuffer(width, height);
 
-		renderer.loadTextureFile("projects/Rasterizer/minecraft_dirt.png");
+		renderer.loadTextureFile("projects/Rasterizer/flower_texture.png");
 
-		renderer.cameraPos = Vec3(0, 0, 10);
+		renderer.cameraPos = Vec3(0, 0, 20);
 		renderer.viewMatrix = Matrix4::viewMatrix(Vec4(renderer.cameraPos.x, renderer.cameraPos.y, renderer.cameraPos.z), Vec4(0, 0, 0), Vec4(0, 1, 0));
 		renderer.projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, renderer.near, renderer.far);
 		//-----------------------------------------------------------------------------------------------
@@ -182,7 +191,7 @@ ExampleApp::Run()
 		this->window->Update();
 
 		// do stuff
-		renderer.draw(renderer.addVertexIndexBuffer("engine/render/cube.obj"));
+		renderer.draw(renderer.addVertexIndexBuffer("engine/render/dragon.obj"));
 
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, renderer.framebufferID);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

@@ -3,7 +3,6 @@
 #include "render/MeshResource.h"
 #include <functional>
 #include "render/stb_image.h"
-//#include <algorithm>
 #include "TextureResource.h"
 #include <map>
 
@@ -60,7 +59,7 @@ public:
 	void drawLine(std::vector<Vec2> line);
 	void fillTriangle(std::vector<Vec2> line0, std::vector<Vec2> line1, std::vector<Vec2> line2);
 	void fillRow(int x0, int x1, int y);
-	void interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& v2);
+	void interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& v2, Vec3 pos0, Vec3 pos1, Vec3 pos2);
 	
 	// draw frame
 	void rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2);

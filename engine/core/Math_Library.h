@@ -21,6 +21,10 @@ public:
         x = vec2.x;
         y = vec2.y;
     }
+    bool operator==(const Vec2& vec2) {
+        if (x == vec2.x && y == vec2.y) return true;
+        return false;
+    }
     Vec2 operator+(Vec2& vec2) const { //adds this and vec4, returns a new Vec4
         return Vec2(x + vec2.x, y + vec2.y);
     }
@@ -73,6 +77,10 @@ public:
         x = vec3.x;
         y = vec3.y;
         z = vec3.z;
+    }
+    bool operator==(const Vec2& vec2) {
+        if (x == vec2.x && y == vec2.y) return true;
+        return false;
     }
     Vec3 operator+(Vec3& vec3) const { //adds this and vec4, returns a new Vec4
         return Vec3(x + vec3.x, y + vec3.y, z + vec3.z);

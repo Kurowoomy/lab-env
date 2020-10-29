@@ -10,9 +10,6 @@
 #include "render/window.h"
 
 // my own includes
-//#include "render/MeshResource.h"
-//#include "render/ShaderObject.h"
-//#include "render/TextureResource.h"
 #include "render/GraphicsNode.h"
 #include "render/PointLight.h"
 
@@ -36,10 +33,6 @@ public:
 
 private:
 
-	GLuint program;
-	GLuint vertexShader;
-	GLuint pixelShader;
-	GLuint triangle;
 	Display::Window* window;
 
 	// my own members

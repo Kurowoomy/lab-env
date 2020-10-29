@@ -104,11 +104,10 @@ ExampleApp::Open()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 		// create a graphics node object
-		gn.setMesh("engine/render/cube.obj");
-		//gn.setMesh(MeshResource::Shape::CUBE, { 3, 3 }, 1);
+		gn.setMesh("engine/render/dragon.obj");
 		gn.setShader("engine/render/ShaderVertex.txt", 
 			"engine/render/ShaderFragment.txt");
-		//gn.setTexture("projects/ObjectFiles/flower_texture.png");
+		gn.setTexture("projects/ObjectFiles/flower_texture.png");
 		
 		return true;
 	}
@@ -127,7 +126,7 @@ ExampleApp::Run()
 	Matrix4 mvp;
 	float modelRadians = 0, scalar = 1; // modelMatrix values
 	float yRadians = 0; //viewMatrix values
-	Vec4 eye(0, 0, 10), target(0, 0, 0), up(0, 1, 0); // viewMatrix vectors
+	Vec4 eye(0, 0, 20), target(0, 0, 0), up(0, 1, 0); // viewMatrix vectors
 	Vec3 cameraPos(eye.x, eye.y, eye.z);
 
 	// create projection matrix

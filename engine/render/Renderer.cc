@@ -161,44 +161,24 @@ void Renderer::rasterizeTriangle(Vertex v0, Vertex v1, Vertex v2)
 	uvCoords.clear();
 	fillTriangle(line0, line1, line2);
 
-	// find pixel vertices
+	// find pixel vertices, so we don't use float vertices to check if pixel is inside triangle
 	Vec3 vertexPos0, vertexPos1, vertexPos2;
-	// punkten som line0 och line2 har gemensamt är vertexPos0.
+	// the pixel that is shared between line0 and line2 is vertexPos0, then we also know which is vertexPos1.
 	if (line0[0] == line2[0] || line0[0] == line2[line2.size() - 1]) {
 		vertexPos0 = Vec3(line0[0].x, line0[0].y, 0);
-
 		vertexPos1 = Vec3(line0[line0.size() - 1].x, line0[line0.size() - 1].y, 0);
 	}
 	else if (line0[line0.size() - 1] == line2[0] || line0[line0.size() - 1] == line2[line2.size() - 1]) {
 		vertexPos0 = Vec3(line0[line0.size() - 1].x, line0[line0.size() - 1].y, 0);
-
 		vertexPos1 = Vec3(line0[0].x, line0[0].y, 0);
 	}
+	// find vertexPos2
 	if (vertexPos0 == line2[0]) {
 		vertexPos2 = Vec3(line2[line2.size() - 1].x, line2[line2.size() - 1].y, 0);
 	}
 	else if (vertexPos0 == line2[line2.size() - 1]) {
 		vertexPos2 = Vec3(line2[0].x, line2[0].y, 0);
 	}
-	//// pos0 and pos2
-	//if (line0[0] == line1[0] || line0[0] == line1[line1.size() - 1]) {
-	//	vertexPos0 = Vec3(line0[0].x, line0[0].y, 0);
-	//	
-	//	vertexPos2 = Vec3(line0[line0.size() - 1].x, line0[line0.size() - 1].y, 0);
-	//}
-	//else if (line0[line0.size() - 1] == line1[0] || line0[line0.size() - 1] == line1[line1.size() - 1]) {
-	//	vertexPos0 = Vec3(line0[line0.size() - 1].x, line0[line0.size() - 1].y, 0);
-
-	//	vertexPos2 = Vec3(line0[0].x, line0[0].y, 0);
-	//}
-	//// pos1
-	//if (line1[0] == Vec2(vertexPos0.x, vertexPos0.y)) {
-	//	vertexPos1 = Vec3(line1[line1.size() - 1].x, line1[line1.size() - 1].y, 0);
-	//}
-	//else if (line1[line1.size() - 1] == Vec2(vertexPos0.x, vertexPos0.y)) {
-	//	vertexPos1 = Vec3(line1[0].x, line1[0].y, 0);
-	//}
-
 
 	//pixels vector is ready to use for interpolation!
 	int i = 0;
@@ -494,8 +474,6 @@ void Renderer::interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& 
 	Vec3 v0v1_xy = Vec3(v0v1.x, v0v1.y, 0);
 	Vec3 v0v2_xy = Vec3(v0v2.x, v0v2.y, 0);
 
-	//Vec3 N = v0v1_xy.crossProduct(v0v2_xy);
-	//float denominator = N * N;
 	float denominator = v0v1_xy.crossProduct(v0v2_xy).length(); // parallellogram for whole triangle
 	if (denominator == 0) {
 		//printf("denominator is zero somebody do something about it D:");
@@ -554,17 +532,17 @@ void Renderer::interpolate(int x, int y, int i, Vertex& v0, Vertex& v1, Vertex& 
 	// interpolate uvcoord values, need to be integers for texture coordinates
 	uvcoord.x = round(w0 * v0.uv.x + w1 * v1.uv.x + w2 * v2.uv.x);
 	// make sure there are no precision errors
-	if (uvcoord.x < 0) { // händer vid transformering
+	if (uvcoord.x < 0) { // happens during transformation
 		uvcoord.x = 0;
 	}
-	if (uvcoord.x > texture.width) { // händer vid rotation
+	if (uvcoord.x > texture.width) { // happens during rotation
 		uvcoord.x = texture.width;
 	}
 	uvcoord.y = round(w0 * v0.uv.y + w1 * v1.uv.y + w2 * v2.uv.y);
-	if (uvcoord.y < 0) { // händer vid transformering
+	if (uvcoord.y < 0) { // happens during transformation
 		uvcoord.y = 0;
 	}
-	if (uvcoord.y > texture.width) { // händer vid rotation
+	if (uvcoord.y > texture.width) { // happens during rotation
 		uvcoord.y = texture.width; 
 	}
 	uvCoords.push_back(uvcoord);

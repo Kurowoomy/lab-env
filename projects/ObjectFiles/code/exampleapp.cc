@@ -107,7 +107,7 @@ ExampleApp::Open()
 		gn.setMesh("engine/render/dragon.obj");
 		gn.setShader("engine/render/ShaderVertex.txt", 
 			"engine/render/ShaderFragment.txt");
-		gn.setTexture("projects/ObjectFiles/flower_texture.png");
+		gn.setTexture("projects/ObjectFiles/aqua.png");
 		
 		return true;
 	}
@@ -125,8 +125,8 @@ ExampleApp::Run()
 	Matrix4 projectionMatrix;
 	Matrix4 mvp;
 	float modelRadians = 0, scalar = 1; // modelMatrix values
-	float yRadians = 0; //viewMatrix values
-	Vec4 eye(0, 0, 20), target(0, 0, 0), up(0, 1, 0); // viewMatrix vectors
+	float yRadians = 0, lightradians = 0; //viewMatrix values
+	Vec4 eye(0, 0, 10), target(0, 0, 0), up(0, 1, 0); // viewMatrix vectors
 	Vec3 cameraPos(eye.x, eye.y, eye.z);
 
 	// create projection matrix
@@ -154,6 +154,11 @@ ExampleApp::Run()
 		//------- Automatic rotation and translation ------------------------------
 		/*gn.setTransform(Matrix4::translationMatrix(0, 0, 0) * Matrix4::rotationY(modelRadians * rotationSpeed)
 			* Matrix4::rotationX(modelRadians * rotationSpeed) * Matrix4::scaleMatrix(scalar) * gn.getTransform());*/
+		/*lightradians = 0.0001;
+		pl.transform = Matrix4::translationMatrix(0, 0, 0) * Matrix4::rotationY(lightradians);
+		pl.position = Vec3(	(pl.transform * Vec4(pl.position.x, pl.position.y, pl.position.z)).x, 
+							(pl.transform * Vec4(pl.position.x, pl.position.y, pl.position.z)).y, 
+							(pl.transform * Vec4(pl.position.x, pl.position.y, pl.position.z)).z);*/
 		//---------------------------------------------------------------
 		
 		//------- Automatic camera rotation while looking at cube position ----------

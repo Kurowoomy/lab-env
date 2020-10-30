@@ -101,9 +101,12 @@ ExampleApp::Open()
 		renderer.setVertexShader([this](Vertex& vertex) 
 		{
 			Vec4 newPos, newNormal, newWorldPos;
+			Matrix4 inverseModel;
 			newPos = renderer.projectionMatrix * renderer.viewMatrix * renderer.model * Vec4(vertex.pos.x, vertex.pos.y, vertex.pos.z);
 			newWorldPos = renderer.model * Vec4(vertex.pos.x, vertex.pos.y, vertex.pos.z);
 			newNormal = renderer.model * Vec4(vertex.normal.x, vertex.normal.y, vertex.normal.z);
+			Matrix4::inverse(renderer.model, inverseModel);
+			newNormal = inverseModel.transpose() * Vec4(vertex.normal.x, vertex.normal.y, vertex.normal.z);
 			
 			vertex.normal = Vec3(newNormal.x, newNormal.y, newNormal.z);
 			vertex.uv.x = vertex.uv.x * (renderer.texture.width); // size 512, uv positions are 0 - 511
@@ -170,7 +173,7 @@ ExampleApp::Open()
 
 		renderer.loadTextureFile("projects/Rasterizer/flower_texture.png");
 
-		renderer.cameraPos = Vec3(0, 0, 20);
+		renderer.cameraPos = Vec3(0, 0, 10);
 		renderer.viewMatrix = Matrix4::viewMatrix(Vec4(renderer.cameraPos.x, renderer.cameraPos.y, renderer.cameraPos.z), Vec4(0, 0, 0), Vec4(0, 1, 0));
 		renderer.projectionMatrix = Matrix4::perspectiveMatrix(90, (float)width / (float)height, renderer.near, renderer.far);
 		//-----------------------------------------------------------------------------------------------
